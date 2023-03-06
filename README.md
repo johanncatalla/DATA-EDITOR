@@ -1,4 +1,4 @@
-# DATA-PROJECT-v2.0
+# DATA-PROJECT-v1.0
 
 This update to the data project will implement the MVC architecture, improve GUI layout, and add data analysis and data visualization functionalities. 
 The libraries that will be used are regex, tkinter, pandas, and hvplot.  
