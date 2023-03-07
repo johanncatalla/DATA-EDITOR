@@ -9,8 +9,12 @@ A Text and CSV Editor using Tkinter utilizing MVC architecture of the Object-Ori
 
 # IMPROVEMENTS
 
-Rewritten in MVC architecture\n
+Rewritten in MVC architecture
+
 Improved GUI layout
+
 Added CSV editor
+
 Added data analysis and visualization
+
 Bug fixes
