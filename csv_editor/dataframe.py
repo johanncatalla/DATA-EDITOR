@@ -16,6 +16,7 @@ class Application(TkinterDnD.Tk):
 class DataTable(ttk.Treeview):
     def __init__(self, parent):
         super().__init__(parent)
+        # horizontal and vertical scrollbars
         scroll_Y = tk.Scrollbar(self, orient="vertical", command=self.yview)
         scroll_X = tk.Scrollbar(self, orient="horizontal", command=self.xview)
         self.configure(yscrollcommand=scroll_Y.set, xscrollcommand=scroll_X.set)
@@ -34,14 +35,19 @@ class DataTable(ttk.Treeview):
     def _draw_table(self,dataframe):
         # clear any item in the treeview
         self.delete(*self.get_children())
+        # create list of columns
         columns = list(dataframe.columns)
+        # set attributes of the treeview widget
         self.__setitem__("column", columns)
         self.__setitem__("show", "headings")
 
+        # insert the headings based on the list of columns
         for col in columns:
             self.heading(col, text=col)
         
+        # convert the dataframe to numpy array then convert to list to make the data compatible for the Treeview
         df_rows = dataframe.to_numpy().tolist()
+        # insert the rows based on the format of df_rows
         for row in df_rows:
             self.insert("", "end", values=row)
         return None
@@ -69,15 +75,21 @@ class DataTable(ttk.Treeview):
         self._draw_table(self.stored_dataframe)
         
 
-class SearchPage(tk.Frame): 
+class SearchPage(tk.Frame):
+    # object that will be the frame of the gui that will contain the widgets 
     def __init__(self,parent):
         super().__init__(parent)
+        # creating the listbox then binding to the different events
         self.file_name_listbox = tk.Listbox(parent, selectmode=tk.SINGLE, background="darkgray")
         self.file_name_listbox.place(relheight=1, relwidth=0.25)
+        # registers the listbox on the drag-and-drop functionality using DnD2
         self.file_name_listbox.drop_target_register(DND_FILES)
+        # binds the listbox to dnd
         self.file_name_listbox.dnd_bind("<<Drop>>", self.drop_inside_list_box)
+        # binds the lsitbox to double click to open the file
         self.file_name_listbox.bind("<Double-1>", self._display_file)
 
+        # creates the entry box and binds it to the enter/return key
         self.search_entrybox = tk.Entry(parent)
         self.search_entrybox.place(relx=0.25, relwidth=0.75)
         self.search_entrybox.bind("<Return>", self.search_table)
@@ -161,7 +173,6 @@ class SearchPage(tk.Frame):
                     j+=1
                 # append name to list of results
                 res.append(name)
-
                 # resets variables to iterate again
                 name=""
                 idx=j
