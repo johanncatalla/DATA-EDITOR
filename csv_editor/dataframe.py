@@ -12,6 +12,9 @@ class Application(TkinterDnD.Tk):
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         self.geometry("900x500")
         self.search_page = SearchPage(parent=self.main_frame)
+    
+    def run(self):
+        self.mainloop()
 
 class DataTable(ttk.Treeview):
     def __init__(self, parent):
@@ -77,9 +80,10 @@ class DataTable(ttk.Treeview):
 
 class SearchPage(tk.Frame):
     # object that will be the frame of the gui that will contain the widgets 
-    def __init__(self,parent):
+    def __init__(self, parent):
         super().__init__(parent)
         # creating the listbox then binding to the different events
+
         self.file_name_listbox = tk.Listbox(parent, selectmode=tk.SINGLE, background="darkgray")
         self.file_name_listbox.place(relheight=1, relwidth=0.25)
         # registers the listbox on the drag-and-drop functionality using DnD2
@@ -100,6 +104,8 @@ class SearchPage(tk.Frame):
 
         # dictionary of filename: filepath pair to display in the listbox and treeview
         self.path_map = {}
+        
+    
 
     # method that will run when dropping files in the listbox 
     def drop_inside_list_box(self, event):
@@ -223,4 +229,4 @@ class SearchPage(tk.Frame):
 
 if __name__ == "__main__":
     root = Application()
-    root.mainloop()
+    root.run()
