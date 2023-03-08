@@ -4,6 +4,7 @@ This update to the data project will implement the MVC architecture, improve GUI
 The libraries that will be used are regex, tkinter, pandas, and hvplot.  
 
 ![Text Editor](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/text_editor.png)
+![CSV Viewer](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/CSV%20viewer.png)
 
 # PROJECT DESCRIPTION:
 
