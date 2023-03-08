@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 class View():
     def __init__(self, master, controller):
@@ -10,7 +11,7 @@ class View():
 class ViewPanel():
     def __init__(self, root, controller):
         self.controller = controller
-        
+
         # Top Frame
         self.top_frame = tk.Frame(root, width=800, height=400, padx=20)
         self.top_frame.pack(fill='x')
@@ -64,6 +65,13 @@ class ViewPanel():
             font=('Arial', 10)
         )
         self.entry.grid(row=1, column=0, sticky=tk.W, padx=52)
+
+        self.switch_window = tk.Button(
+            self.editor_Frame, 
+            text='Open CSV Viewer', 
+            command=self.controller.switch_window
+            )
+        self.switch_window.grid(row=1, column=1, sticky=tk.W)
 
         self.options_list = ["Ignore Case", "Case Sensitive"]
         
@@ -127,4 +135,5 @@ class ViewPanel():
     
     def update_display(self, text=''):
         self.display_text.insert('1.0', text)
+    
     
