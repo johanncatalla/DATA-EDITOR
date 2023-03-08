@@ -1,6 +1,7 @@
 import tkinter as tk
 from gui.models import Model
 from gui.views import View
+from csv_editor.dataframe import Application
 from tkinter import filedialog as fd
 from tkinter import messagebox
 import re
@@ -66,6 +67,10 @@ class Controller():
     def run(self):
         self.root.mainloop()
 
+    def switch_window(self):
+        view_csv = Application()
+        view_csv.run()
+    
     def search_txt(self):
         # getting the text from the Text editor
         text_editor_input = self.view.viewPanel.txt_editor.get("1.0", tk.END)
