@@ -1,11 +1,31 @@
 import tkinter as tk
 from gui.models import Model
 from gui.views import View
-from csv_editor.csv_controller import CSV_Controller
+from csv_editor.csv_views import CSVView, DataTable
+from tkinterdnd2 import DND_FILES, TkinterDnD
 from tkinter import filedialog as fd
 from tkinter import messagebox
 import re
 import os
+
+class CSV_Controller(TkinterDnD.Tk):
+    def __init__(self):
+        super().__init__()
+        self.main_frame = tk.Frame(self)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        self.geometry("900x500")
+        self.title("CSV Viewer")
+        
+        self.view = CSVView(self, self)
+        self.table = DataTable(self)
+
+    def run(self):
+        self.mainloop()
+    
+    def switch(self):
+        self.destroy()
+        text = Controller()
+        text.run()
 
 class Controller():
     # Controller object that will bind the view and model to create main app
