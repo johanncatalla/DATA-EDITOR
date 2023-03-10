@@ -1,7 +1,7 @@
 import tkinter as tk
 from gui.models import Model
 from gui.views import View
-from csv_editor.dataframe import Application
+from csv_editor.csv_controller import CSV_Controller
 from tkinter import filedialog as fd
 from tkinter import messagebox
 import re
@@ -76,9 +76,11 @@ class Controller():
 
     def switch_window(self):
         """Open the CSV Viewer"""
-        view_csv = Application()
+        self.root.destroy()
+        view_csv = CSV_Controller()
         view_csv.run()
-    
+        
+
     def search_txt(self):
         """Search functionality of Text Editor"""
         # getting the text from the Text editor
