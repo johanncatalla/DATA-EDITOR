@@ -88,7 +88,7 @@ class CSVView(tk.Frame):
         self.search_entrybox.place(relx=0.25, relwidth=0.85)
         self.search_entrybox.bind("<Return>", self.search_table)
 
-        self.switchbtn = tk.Button(parent, text="Switch to Text Editor", command=self.close_csv)
+        self.switchbtn = tk.Button(parent, text="Switch to Text Editor", command=self.controller.switch)
         self.switchbtn.place(relwidth=0.25, rely=0.95)
 
         # Connect data table to search page // Treeview
