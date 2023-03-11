@@ -15,7 +15,7 @@ class CSV_Controller(TkinterDnD.Tk):
         super().__init__()
         self.main_frame = tk.Frame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
-        self.geometry("900x500")
+        self.geometry("1280x720")
         self.title("CSV Viewer")
         
         # assign properties for widgets and table
