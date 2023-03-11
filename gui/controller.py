@@ -1,32 +1,32 @@
 import tkinter as tk
 from gui.models import Model
 from gui.views import View
-from csv_editor.csv_views import CSVView, DataTable
-from tkinterdnd2 import DND_FILES, TkinterDnD
+from csv_editor.csv_views import CSVView
+from csv_editor.csv_views import DataTable
+from tkinterdnd2 import TkinterDnD
 from tkinter import filedialog as fd
 from tkinter import messagebox
 import re
 import os
 
 class CSV_Controller(TkinterDnD.Tk):
+    # Controller object for csv viewer
     def __init__(self):
+        # inherit from dnd2 library for drag and drop
         super().__init__()
         self.main_frame = tk.Frame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         self.geometry("900x500")
         self.title("CSV Viewer")
         
+        # assign properties for widgets and table
         self.view = CSVView(self, self)
         self.table = DataTable(self)
 
     def run(self):
+        """runs the program"""
         self.mainloop()
-    
-    def switch(self):
-        self.destroy()
-        text = Controller()
-        text.run()
-
+        
 class Controller():
     # Controller object that will bind the view and model to create main app
     def __init__(self):
@@ -96,7 +96,6 @@ class Controller():
 
     def switch_window(self):
         """Open the CSV Viewer"""
-        self.root.destroy()
         view_csv = CSV_Controller()
         view_csv.run()
         
