@@ -1,8 +1,7 @@
 import tkinter as tk
 from gui.models import Model
 from gui.views import View
-from csv_editor.csv_views import CSVView
-from csv_editor.csv_views import DataTable
+from csv_editor.csv_views import CSVView, DataTable
 from tkinterdnd2 import TkinterDnD
 from tkinter import filedialog as fd
 from tkinter import messagebox
@@ -94,7 +93,7 @@ class Controller():
         """runs the program"""
         self.root.mainloop()
 
-    def switch_window(self):
+    def open_csv_viewer(self):
         """Open the CSV Viewer"""
         view_csv = CSV_Controller()
         view_csv.run()
