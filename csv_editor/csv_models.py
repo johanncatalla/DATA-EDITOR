@@ -2,6 +2,19 @@ import tkinter as tk
 import pandas as pd
 from tkinter import ttk
 
+class CanvasViz(ttk.Treeview):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+class VizTable(ttk.Treeview):
+    def __init__(self,parent):
+        super().__init__(parent)
+        scroll_Y = tk.Scrollbar(self, orient="vertical", command=self.yview)
+        scroll_X = tk.Scrollbar(self, orient="horizontal", command=self.xview)
+        self.configure(yscrollcommand=scroll_Y.set, xscrollcommand=scroll_X.set)
+        scroll_Y.pack(side="right", fill="y")
+        scroll_X.pack(side="bottom", fill="x")    
+
 class DataTable(ttk.Treeview):
     def __init__(self, parent):
         super().__init__(parent)

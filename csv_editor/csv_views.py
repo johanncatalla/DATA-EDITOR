@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinterdnd2 import DND_FILES
 import pandas as pd
+import hvplot.pandas
+from tkinter import ttk
 from pathlib import Path
-from csv_editor.csv_models import DataTable
+from csv_editor.csv_models import DataTable, VizTable, CanvasViz
 
 class CSVView(tk.Frame):
     # object that will be the frame of the gui that will contain the widgets 
@@ -11,7 +13,7 @@ class CSVView(tk.Frame):
         # creating the listbox then binding to the different events
         self.controller = controller
         self.file_name_listbox = tk.Listbox(parent, selectmode=tk.SINGLE, background="darkgray")
-        self.file_name_listbox.place(relheight=1, relwidth=0.25)
+        self.file_name_listbox.place(relheight=0.5, relwidth=0.25)
         # registers the listbox on the drag-and-drop functionality using DnD2
         self.file_name_listbox.drop_target_register(DND_FILES)
         # binds the listbox to dnd
@@ -21,14 +23,20 @@ class CSVView(tk.Frame):
         
         # creates the entry box and binds it to the enter/return key
         self.search_entrybox = tk.Entry(parent)
-        self.search_entrybox.place(relx=0.25, relwidth=0.85)
+        self.search_entrybox.place(relx=0.25, relwidth=0.85, height=20)
         self.search_entrybox.bind("<Return>", self.search_table)
 
         # Connect data table to search page // Treeview
         self.data_table = DataTable(parent)
-        self.data_table.place(rely=0.05, relx=0.25, relwidth=0.75, relheight=0.95)
-
+        self.data_table.place(y=25, relx=0.25, relwidth=0.75, relheight=0.47)
+    
+        self.input_tree = VizTable(parent)
+        self.input_tree.place(rely=0.5, relheight=0.5, relwidth=0.25)
          # dictionary of filename: filepath pair to display in the listbox and treeview
+
+        self.visual = CanvasViz(parent)
+        self.visual.place(rely=0.5, relx=0.25, relwidth=0.75, relheight=0.47,)
+
         self.path_map = {}
 
     # method that will run when dropping files in the listbox 
@@ -70,6 +78,7 @@ class CSVView(tk.Frame):
         
         # create dataframe from path
         df = pd.read_csv(path)
+        # TODO visualize
         # converts the values of the column to string
         df = df.astype(str)
         # pass the dataframe to the datatable function which inserts it to an empty dataframe
@@ -87,15 +96,15 @@ class CSVView(tk.Frame):
             list: list of filepath names
         """
         size = len(filename)
-        res= [] # list of file paths
+        res = [] # list of file paths
         name = "" 
         idx = 0
         while idx<size:
             # create var j when encountering an opening curly bracket
             if filename[idx] == "{":
-                # starts the iteration after the curly bracket to take the contents
+                # start iteration after the curly bracket to take the contents
                 j = idx + 1
-                # iterates over string until it reaches the closing brace
+                # iterate over string until it reaches closing brace
                 while filename[j] != "}":
                     # append string to the name var
                     name += filename[j]
