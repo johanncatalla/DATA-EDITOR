@@ -1,123 +1,111 @@
-import tkinter as tk
 import pandas as pd
-from tkinter import ttk
 import csv
 
-class CanvasViz(ttk.Treeview):
-    def __init__(self, parent):
-        super().__init__(parent)
+class ModelCSV():
+    def open_csv_file(self, path):
+        """reads dataframe from path"""
+        df = pd.read_csv(path)
+        return df
 
-class VizTable(ttk.Treeview):
-    def __init__(self,parent):
-        super().__init__(parent)
-        scroll_Y = tk.Scrollbar(self, orient="vertical", command=self.yview)
-        scroll_X = tk.Scrollbar(self, orient="horizontal", command=self.xview)
-        self.configure(yscrollcommand=scroll_Y.set, xscrollcommand=scroll_X.set)
-        scroll_Y.pack(side="right", fill="y")
-        scroll_X.pack(side="bottom", fill="x")    
-
-class DataTable(ttk.Treeview):
-    # Treeview object to display dataframe
-    def __init__(self, parent):
-        super().__init__(parent)
-        
-        self.master = parent
-        # horizontal and vertical scrollbars
-        scroll_Y = tk.Scrollbar(self, orient="vertical", command=self.yview)
-        scroll_X = tk.Scrollbar(self, orient="horizontal", command=self.xview)
-        self.configure(yscrollcommand=scroll_Y.set, xscrollcommand=scroll_X.set)
-        scroll_Y.pack(side="right", fill="y")
-        scroll_X.pack(side="bottom", fill="x")
-
-        # Change style of treeview
-        style = ttk.Style(self)
-        style.theme_use("default")
-        style.map("Treeview")
-
-        # Empty Dataframe object for the treeview to use later
-        self.stored_dataframe = pd.DataFrame()
-
-    def save_file_as(self, filename: str): # TODO write treeview
-        """Saves the csv file as new file / write mode
-
-        Args:
-            filename (str): _description_
-        """
+    def save_csv(self, filename: str): # TODO write treeview
+        """create csv writer to save file"""
         file = open(filename, 'w', newline='')
         csv_writer = csv.writer(file)
-        header = columns
-        csv_writer.writerow(header)
-
-        for row in df_rows:
-            csv_writer.writerow(row)
-            
-
-    def set_datatable(self, dataframe):
-        """Copies the string version of the original dataframe to the spare dataframe for string query
-        then draws the original dataframe to the treeview
-
-        Args:
-            dataframe (DataFrame): opened dataframe in read mode
-        """
-        # takes the empty dataframe and stores it in the "dataframe" attribute
-        self.stored_dataframe = dataframe.astype(str)
-        # draws the dataframe in the treeview using the function _draw_table
-        self._draw_table(dataframe)
-
-    def _draw_table(self, dataframe):
-        """Draws/Inserts the data in the dataframe on the treeview
-
-        Args:
-            dataframe (DataFrame): opened dataframe in read mode
-        """
-        # clear any item in the treeview
-        self.delete(*self.get_children())
-        # create list of columns
-        
-        global columns
-        columns = list(dataframe.columns) # TODO Use this list as headings for write
-        
-        # set attributes of the treeview widget
-        self.__setitem__("column", columns)
-        self.__setitem__("show", "headings")
-
-        # insert the headings based on the list of columns
-        for col in columns:
-            self.heading(col, text=col)
+        return csv_writer
     
-        # convert the dataframe to numpy array then convert to list to make the data compatible for the Treeview
-        global df_rows
-        df_rows = dataframe.to_numpy().tolist()
-        
-        # insert the rows based on the format of df_rows
-        for row in df_rows:
-            self.insert("", "end", values=row)
-        return None
-    
-    def find_value(self, pairs: dict):
-        """search table for every pair in entry widget
+    def row_content(self, dataframe):
+        """extracts the contents of the row in the dataframe. excludes heading"""
+        df = dataframe.to_numpy().tolist()
+        return df
+
+    def col_content(self, dataframe) -> list:
+        """returns list of columns in the dataframe"""
+        col_lst = list(dataframe.columns)
+        return col_lst
+
+    def str_query(self, pairs: dict, dataframe):
+        """string query to match the entry with the dataframe
 
         Args:
-            pairs (dict): pairs of column search in the entry widget {country: PH, year: 2020}
+            pairs (dict): pairs of {column: value} in the entry box
+            dataframe (_type_): dataframe to conduct a query
+
+        Returns:
+            DataFrame: dataframe containing match result from query
         """
-        column_keys = pairs.keys()
-        option_value = self.master.search_val.get()
-        print(option_value)
-        # takes the empty dataframe and stores it in a property
-        
-        new_df = self.stored_dataframe[column_keys] # TODO option menu to change behavior
-        
-        
-        # inputs each matched dataframe row in the stored dataframe based on entry box pair value
         for col, value in pairs.items():
             # query expression that checks if the column contains the inputted value
-            
             query_string = f"`{col}`.str.contains('{value}', na=False)"
             # dataframe generated by query function to evaluate the columns with matched expression
-            new_df = new_df.query(query_string, engine="python")
-        # draws the dataframe in the treeview 
-        self._draw_table(new_df)
+            df = dataframe.query(query_string, engine="python")
+        return df
+    
+    def _parse_drop_files(self, filename: str) -> list:
+        """When dropping a file to listbox, removes curly braces on file name 
+        when the file has space by taking the string inside the curly braces
 
-    def reset_table(self):
-        # resets the treeview by drawing the empty dataframe in the treeview
-        self._draw_table(self.stored_dataframe)
+        Args:
+            filename (str): name of the file can be with or without space
+
+        Returns:
+            list: list of filepath names
+        """
+        size = len(filename)
+        res = [] # list of file paths
+        name = "" 
+        idx = 0
+        while idx<size:
+            # create var j when encountering an opening curly bracket
+            if filename[idx] == "{":
+                # start iteration after the curly bracket to take the contents
+                j = idx + 1
+                # iterate over string until it reaches closing brace
+                while filename[j] != "}":
+                    # append string to the name var
+                    name += filename[j]
+                    # increase index position
+                    j+=1
+                # append name to list of results
+                res.append(name)
+                # resets variables to iterate again
+                name=""
+                idx=j
+            # for filepath without curly braces, append filepath name when it reaches space which implies the end of the filepath name
+            elif filename[idx]== " " and name != "":
+                res.append(name)
+                name=""
+            # continue to append the idx value as long as the value is not equal to space which implies the end of the filepath name
+            elif filename[idx] != " ":
+                name += filename[idx]
+            idx+=1
+        # checks the filepath string if there are remaining filepaths
+        if name != "":
+            # appends the remaining file path name
+            res.append(name)
+
+        return res
+    
+    def entry_to_pairs(self, entry: str) -> dict:
+        """Converts entry sting to a dictionary of {column: value} pairs
+
+        Args:
+            entry (str): string in the entry box
+
+        Returns:
+            dict: contains {column: value} pairs of the entry string
+        """
+        # converts the strings separated by comma to list ['country=Philippines', 'year=2020']
+        entry_split = entry.split(",")
+        # a dictionary of the entry searches by pair
+        pairs = {}
+        # transforms items in list into pairs in the dictionary 
+        for pair in entry_split:
+            # splits the value on the equal sign
+            pair_split = pair.split("=")
+            # confirms if the list contains two values which will be key and value
+            if len(pair_split) == 2:
+                col = pair_split[0] # key
+                lookup_value = pair_split[1] # val
+                # pairs the key and the value together and inserts it to the dictionary
+                pairs[col] = lookup_value 
+        return pairs
