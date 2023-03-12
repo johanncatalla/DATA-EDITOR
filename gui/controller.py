@@ -13,6 +13,14 @@ class CSV_Controller(TkinterDnD.Tk):
     def __init__(self):
         # inherit from dnd2 library for drag and drop
         super().__init__()
+
+        self.menubar_csv = tk.Menu(self)
+        self.config(menu=self.menubar_csv)
+
+        self.file_menu = tk.Menu(self.menubar_csv, tearoff=0)
+        self.file_menu.add_command(label="Save file", command=self.save_csv_as)
+        self.menubar_csv.add_cascade(label="File", menu=self.file_menu)
+
         self.main_frame = tk.Frame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         self.geometry("1280x720")
@@ -25,6 +33,28 @@ class CSV_Controller(TkinterDnD.Tk):
     def run(self):
         """runs the program"""
         self.mainloop()
+
+    def save_csv_as(self):
+        treeview = self.table
+        data = []
+        
+        for child in treeview.get_children():
+            row = []
+            row.append(treeview.item(child)['text'])
+            for value in treeview.item(child)['values']:
+                row.append(value)
+            data.append(row)
+
+        csv_file = fd.asksaveasfilename(
+            defaultextension=".*",
+            initialdir="D:/Downloads",
+            title="Save File as",
+            filetypes=(('.csv files', '*.csv'),)
+        )
+
+        if csv_file:
+            self.table.save_file_as(csv_file)
+
         
 class Controller():
     # Controller object that will bind the view and model to create main app
@@ -235,7 +265,6 @@ class Controller():
             title="Save File as", 
             filetypes=(('.txt files', '*.txt'), ('HTML Files', '*.html'),('Python Files', '*.py'), ('All Files', '*.*'))
         )
-        print(text_file)
         # checks if the user opened a file in the file dialog
         if text_file:
             # Updade Status Bars
