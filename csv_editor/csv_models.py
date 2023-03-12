@@ -17,8 +17,10 @@ class VizTable(ttk.Treeview):
         scroll_X.pack(side="bottom", fill="x")    
 
 class DataTable(ttk.Treeview):
+    # Treeview object to display dataframe
     def __init__(self, parent):
         super().__init__(parent)
+        
         # horizontal and vertical scrollbars
         scroll_Y = tk.Scrollbar(self, orient="vertical", command=self.yview)
         scroll_X = tk.Scrollbar(self, orient="horizontal", command=self.xview)
@@ -26,10 +28,20 @@ class DataTable(ttk.Treeview):
         scroll_Y.pack(side="right", fill="y")
         scroll_X.pack(side="bottom", fill="x")
 
+        # Change style of treeview
+        style = ttk.Style(self)
+        style.theme_use("default")
+        style.map("Treeview")
+
         # Empty Dataframe object for the treeview to use later
         self.stored_dataframe = pd.DataFrame()
 
     def save_file_as(self, filename: str): # TODO write treeview
+        """Saves the csv file as new file / write mode
+
+        Args:
+            filename (str): _description_
+        """
         file = open(filename, 'w', newline='')
         csv_writer = csv.writer(file)
         header = columns
@@ -40,12 +52,23 @@ class DataTable(ttk.Treeview):
             
 
     def set_datatable(self, dataframe):
+        """Copies the string version of the original dataframe to the spare dataframe for string query
+        then draws the original dataframe to the treeview
+
+        Args:
+            dataframe (DataFrame): opened dataframe in read mode
+        """
         # takes the empty dataframe and stores it in the "dataframe" attribute
         self.stored_dataframe = dataframe.astype(str)
         # draws the dataframe in the treeview using the function _draw_table
         self._draw_table(dataframe)
 
-    def _draw_table(self,dataframe):
+    def _draw_table(self, dataframe):
+        """Draws/Inserts the data in the dataframe on the treeview
+
+        Args:
+            dataframe (DataFrame): opened dataframe in read mode
+        """
         # clear any item in the treeview
         self.delete(*self.get_children())
         # create list of columns
