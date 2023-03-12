@@ -14,13 +14,16 @@ class CSV_Controller(TkinterDnD.Tk):
         # inherit from dnd2 library for drag and drop
         super().__init__()
 
+        # Menus to CSV Editor
         self.menubar_csv = tk.Menu(self)
         self.config(menu=self.menubar_csv)
 
+        # File Menu
         self.file_menu = tk.Menu(self.menubar_csv, tearoff=0)
         self.file_menu.add_command(label="Save file", command=self.save_csv_as)
         self.menubar_csv.add_cascade(label="File", menu=self.file_menu)
 
+        # Main Frame
         self.main_frame = tk.Frame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         self.geometry("1280x720")
@@ -34,24 +37,18 @@ class CSV_Controller(TkinterDnD.Tk):
         """runs the program"""
         self.mainloop()
 
-    def save_csv_as(self):
-        treeview = self.table
-        data = []
-        
-        for child in treeview.get_children():
-            row = []
-            row.append(treeview.item(child)['text'])
-            for value in treeview.item(child)['values']:
-                row.append(value)
-            data.append(row)
+    # TODO Save csv on file 
 
+    def save_csv_as(self):
+        """saves the treeview as new csv file"""
+        # get filename
         csv_file = fd.asksaveasfilename(
             defaultextension=".*",
             initialdir="D:/Downloads",
             title="Save File as",
             filetypes=(('.csv files', '*.csv'),)
         )
-
+        # check if user selected filename
         if csv_file:
             self.table.save_file_as(csv_file)
 
