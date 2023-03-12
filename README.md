@@ -21,6 +21,6 @@ Improved GUI layout
 
 Added CSV viewer with drag-and-drop functionality
  
-TODO: Add data analysis and visualization
+TODO: Add data visualization
 
 Bug fixes
