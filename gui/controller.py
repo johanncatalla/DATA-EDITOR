@@ -1,7 +1,7 @@
 import tkinter as tk
 from gui.models import Model
 from gui.views import View
-from csv_editor.csv_views import CSVView, DataTable
+from csv_editor.csv_views import CSVView
 from tkinterdnd2 import TkinterDnD
 from tkinter import filedialog as fd
 from tkinter import messagebox
@@ -30,8 +30,7 @@ class CSV_Controller(TkinterDnD.Tk):
         self.title("CSV Viewer")
         
         # assign properties for widgets and table
-        self.view = CSVView(self, self)
-        self.table = DataTable(self)
+        self.view = CSVView(self, self)      
 
     def run(self):
         """runs the program"""
@@ -50,7 +49,7 @@ class CSV_Controller(TkinterDnD.Tk):
         )
         # check if user selected filename
         if csv_file:
-            self.table.save_file_as(csv_file)
+            self.view.data_table.save_file_as(csv_file)
 
         
 class Controller():
