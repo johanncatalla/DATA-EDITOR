@@ -1,10 +1,14 @@
 import tkinter as tk
 from gui.models import Model
 from gui.views import View
+from csv_editor.csv_models import ModelCSV
 from csv_editor.csv_views import CSVView
-from tkinterdnd2 import TkinterDnD
+from tkinterdnd2 import TkinterDnD, DND_FILES
+from pathlib import Path
 from tkinter import filedialog as fd
 from tkinter import messagebox
+import pandas as pd
+import csv
 import re
 import os
 
@@ -30,14 +34,10 @@ class CSV_Controller(TkinterDnD.Tk):
         self.title("CSV Viewer")
         
         # assign properties for widgets and table
-        self.view = CSVView(self, self)      
-
-    def run(self):
-        """runs the program"""
-        self.mainloop()
+        self.view = CSVView(self, self)
+        self.model = ModelCSV()      
 
     # TODO Save csv on file 
-
     def save_csv_as(self):
         """saves the treeview as new csv file"""
         # get filename
@@ -47,10 +47,147 @@ class CSV_Controller(TkinterDnD.Tk):
             title="Save File as",
             filetypes=(('.csv files', '*.csv'),)
         )
-        # check if user selected filename
+        # check if user selecsted filename
         if csv_file:
-            self.view.data_table.save_file_as(csv_file)
+            csv_writer = self.model.save_csv(csv_file)
+            header = columns
+            csv_writer.writerow(header)
 
+            for row in df_rows:
+                csv_writer.writerow(row)
+
+    def set_datatable(self, dataframe):
+        """Copies the string version of the original dataframe to the spare dataframe for string query
+        then draws the original dataframe to the treeview
+
+        Args:
+            dataframe (DataFrame): opened dataframe in read mode
+        """
+        # takes the empty dataframe and stores it in the "dataframe" attribute
+        self.view.data_table.stored_dataframe = dataframe.astype(str)
+        # draws the dataframe in the treeview using the function _draw_table
+        self._draw_table(dataframe)
+
+    def _draw_table(self, dataframe): # TODO Included in views
+        """Draws/Inserts the data in the dataframe on the treeview
+
+        Args:
+            dataframe (DataFrame): opened dataframe in read mode
+        """
+        # clear any item in the treeview
+        self.view.data_table.delete(*self.view.data_table.get_children())
+        # create list of columns
+        
+        global columns
+        columns = self.model.col_content(dataframe) # TODO Use this list as headings for write
+        
+        # set attributes of the treeview widget
+        self.view.data_table.__setitem__("column", columns)
+        self.view.data_table.__setitem__("show", "headings")
+
+        # insert the headings based on the list of columns
+        for col in columns:
+            self.view.data_table.heading(col, text=col)
+    
+        # convert the dataframe to numpy array then convert to list to make the data compatible for the Treeview
+        global df_rows
+        df_rows = self.model.row_content(dataframe)
+        
+        # insert the rows based on the format of df_rows
+        for row in df_rows:
+            self.view.data_table.insert("", "end", values=row)
+        return None
+    
+    def find_value(self, pairs: dict):
+        """search table for every pair in entry widget
+
+        Args:
+            pairs (dict): pairs of column search in the entry widget {country: PH, year: 2020}
+        """
+        column_keys = pairs.keys()   
+        option_value = self.view.search_val.get()
+        # takes the empty dataframe and stores it in a property
+        
+        if option_value == "Display All Columns":
+            new_df = self.view.data_table.stored_dataframe
+        else:
+            new_df = self.view.data_table.stored_dataframe[column_keys] # TODO option menu to change behavior
+        
+        # query function to match col to val
+        df_res = self.model.str_query(pairs, new_df)
+        # draws the dataframe containing match result in the treeview 
+        self._draw_table(df_res)
+
+    def reset_table(self):
+        # resets the treeview by drawing the empty dataframe in the treeview
+        self._draw_table(self.view.data_table.stored_dataframe)
+
+    # method that will run when dropping files in the listbox 
+    def drop_inside_list_box(self, event):
+        """tkinterdnd2 event that allows the user to drop files in the listbox
+
+        Args:
+            event (drop event): drag and drop event 
+
+        Returns:
+            list: _description_
+        """
+        # list of the file path names
+        file_paths = self.model._parse_drop_files(event.data)
+        # takes and converts the listbox items into a set to prevent duplicate files
+        current_listbox_items = set(self.view.file_name_listbox.get(0, "end"))
+        
+        # iterate over file path to check if file name is in list box
+        for file_path in file_paths:
+            if file_path.endswith(".csv"):
+                # create object from filepath to return the name of the file
+                path_object = Path(file_path)
+                file_name = path_object.name 
+                # check if the file name is in list box
+                if file_name not in current_listbox_items:
+                    # inserts the file name if not in list box
+                    self.view.file_name_listbox.insert("end", file_name)
+                    # inserts the {filename: filepath} pair in the dictionary access the pair to put the filename
+                    # in the listbox and display the dataframe through the filepath
+                    self.view.path_map[file_name] = file_path
+
+    # Double-click method for the files in the listview
+    def _display_file(self, event):
+        """Displays the dataframe of the file in the listbox to the treeview by double-click event"""
+        # get the file name of the current cursor selection
+        file_name = self.view.file_name_listbox.get(self.view.file_name_listbox.curselection())
+        # takes the file path from the path_map dictionary using the selected file name as key
+        path = self.view.path_map[file_name]
+        
+        # create dataframe from path
+        df = self.model.open_csv_file(path)
+        # TODO visualize
+       
+        # pass the dataframe to the datatable function which inserts it to an empty dataframe
+        # which will then be drawn into the treeview
+        self.set_datatable(dataframe=df)
+
+    def search_table(self, event):
+        """takes the string in the search entry and converts it to 
+        a dictionary of pairs which will be passed to the find_value function
+
+        Args:
+            event (Return key): executes when enter/return key is released
+        """
+        # Example, the entry:  country=Philippines,year=2020
+        # will become the dict: {country: Philippines, year: 2020} which can then be passed to the find_value function
+        entry = self.view.search_entrybox.get()
+        # if there is no entry, resets the table
+        if entry == "":
+            self.reset_table()
+        else:
+            column_value_pairs= self.model.entry_to_pairs(entry)
+            # passes the resulting dict of search entries to the function
+            self.find_value(pairs=column_value_pairs)
+
+    def run(self):
+        """runs the program"""
+        self.mainloop()
         
 class Controller():
     # Controller object that will bind the view and model to create main app
@@ -59,7 +196,7 @@ class Controller():
         self.root = tk.Tk()
         self.root.geometry("800x800")
         self.root.title("New File")
-        # model object
+        # model ob`ject
         self.model = Model()
         # view object
         self.view = View(self.root, self) 
@@ -151,7 +288,6 @@ class Controller():
             count_matches = f"Number of matches for \"{string}\": {res}\n"    
             self.view.viewPanel.update_display(count_matches)
         
-
         # storing the number of matches to return number of sentence matches then inserting to the text widget
         self.num_matches = len(lst_searches)
         self.view.viewPanel.display_text.insert('1.0', f"Sentence matches: {self.num_matches}\n")
