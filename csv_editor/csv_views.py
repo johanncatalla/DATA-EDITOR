@@ -6,6 +6,7 @@ from tkinter import ttk
 from pathlib import Path
 from csv_editor.csv_models import DataTable, VizTable, CanvasViz
 
+
 class CSVView(tk.Frame):
     # object that will be the frame of the gui that will contain the widgets 
     def __init__(self, parent, controller):

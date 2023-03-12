@@ -1,6 +1,7 @@
 import tkinter as tk
 import pandas as pd
 from tkinter import ttk
+import csv
 
 class CanvasViz(ttk.Treeview):
     def __init__(self, parent):
@@ -28,6 +29,16 @@ class DataTable(ttk.Treeview):
         # Empty Dataframe object for the treeview to use later
         self.stored_dataframe = pd.DataFrame()
 
+    def save_file_as(self, filename: str): # TODO write treeview
+        file = open(filename, 'w', newline='')
+        csv_writer = csv.writer(file)
+        header = columns
+        csv_writer.writerow(header)
+
+        for row in df_rows:
+            csv_writer.writerow(row)
+            
+
     def set_datatable(self, dataframe):
         # takes the empty dataframe and stores it in the "dataframe" attribute
         self.stored_dataframe = dataframe
@@ -38,7 +49,9 @@ class DataTable(ttk.Treeview):
         # clear any item in the treeview
         self.delete(*self.get_children())
         # create list of columns
-        columns = list(dataframe.columns)
+        global columns
+        columns = list(dataframe.columns) # TODO Use this list as headings for write
+        
         # set attributes of the treeview widget
         self.__setitem__("column", columns)
         self.__setitem__("show", "headings")
@@ -46,9 +59,11 @@ class DataTable(ttk.Treeview):
         # insert the headings based on the list of columns
         for col in columns:
             self.heading(col, text=col)
-        
+    
         # convert the dataframe to numpy array then convert to list to make the data compatible for the Treeview
+        global df_rows
         df_rows = dataframe.to_numpy().tolist()
+        
         # insert the rows based on the format of df_rows
         for row in df_rows:
             self.insert("", "end", values=row)
