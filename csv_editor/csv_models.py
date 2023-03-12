@@ -21,6 +21,7 @@ class DataTable(ttk.Treeview):
     def __init__(self, parent):
         super().__init__(parent)
         
+        self.master = parent
         # horizontal and vertical scrollbars
         scroll_Y = tk.Scrollbar(self, orient="vertical", command=self.yview)
         scroll_X = tk.Scrollbar(self, orient="horizontal", command=self.xview)
@@ -99,8 +100,13 @@ class DataTable(ttk.Treeview):
         Args:
             pairs (dict): pairs of column search in the entry widget {country: PH, year: 2020}
         """
+        column_keys = pairs.keys()
+        option_value = self.master.search_val.get()
+        print(option_value)
         # takes the empty dataframe and stores it in a property
-        new_df = self.stored_dataframe
+        
+        new_df = self.stored_dataframe[column_keys] # TODO option menu to change behavior
+        
         
         # inputs each matched dataframe row in the stored dataframe based on entry box pair value
         for col, value in pairs.items():
