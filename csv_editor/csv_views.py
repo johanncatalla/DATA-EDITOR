@@ -80,8 +80,7 @@ class CSVView(tk.Frame):
         # create dataframe from path
         df = pd.read_csv(path)
         # TODO visualize
-        # converts the values of the column to string
-        df = df.astype(str)
+       
         # pass the dataframe to the datatable function which inserts it to an empty dataframe
         # which will then be drawn into the treeview
         self.data_table.set_datatable(dataframe=df)
