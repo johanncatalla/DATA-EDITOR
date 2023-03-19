@@ -29,7 +29,7 @@ class ModelCSV():
         Args:
             pairs (dict): pairs of {column: value} in the entry box
             dataframe (_type_): dataframe to conduct a query
-
+    
         Returns:
             DataFrame: dataframe containing match result from query
         """

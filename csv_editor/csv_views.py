@@ -11,7 +11,7 @@ class CSVView(tk.Frame):
         # creating the listbox then binding to the different events
         self.controller = controller
         self.file_name_listbox = tk.Listbox(parent, selectmode=tk.SINGLE, background="darkgray")
-        self.file_name_listbox.place(relheight=0.5, relwidth=0.25)
+        self.file_name_listbox.place(relheight=1, relwidth=0.25)
         # registers the listbox on the drag-and-drop functionality using DnD2
         self.file_name_listbox.drop_target_register(DND_FILES)
         # binds the listbox to dnd
@@ -26,14 +26,17 @@ class CSVView(tk.Frame):
 
         # Connect data table to search page // Treeview
         self.data_table = DataTable(parent)
-        self.data_table.place(y=25, relx=0.25, relwidth=0.75, relheight=0.47)
-    
+        self.data_table.place(y=25, relx=0.25, relwidth=0.75, relheight=1)
+
+        # TODO Data Visualization 
+        """
         self.input_tree = VizTable(parent)
         self.input_tree.place(rely=0.5, relheight=0.5, relwidth=0.25)
          # dictionary of filename: filepath pair to display in the listbox and treeview
 
         self.visual = CanvasViz(parent)
         self.visual.place(rely=0.5, relx=0.25, relwidth=0.75, relheight=0.47,)
+        """
 
         # Options list for search bar
         self.search_options = ["Display All Columns", "Display Inputted Columns"]
