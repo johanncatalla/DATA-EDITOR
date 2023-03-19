@@ -26,7 +26,7 @@ class CSVView(tk.Frame):
 
         # Connect data table to search page // Treeview
         self.data_table = DataTable(parent)
-        self.data_table.place(y=25, relx=0.25, relwidth=0.75, relheight=1)
+        self.data_table.place(rely=0.03, relx=0.25, relwidth=0.75, relheight=0.97)
 
         # TODO Data Visualization 
         """
