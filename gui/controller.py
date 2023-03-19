@@ -197,7 +197,7 @@ class Controller():
     def __init__(self):
         # root container
         self.root = tk.Tk()
-        self.root.geometry("800x800")
+        self.root.geometry("1280x720")
         self.root.title("New File")
         # model ob`ject
         self.model = Model()
@@ -234,6 +234,8 @@ class Controller():
         
         # ACTION menu
         self.action_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.action_menu.add_command(label="Open CSV Viewer", command=self.open_csv_viewer)
+        self.action_menu.add_separator()
         self.action_menu.add_command(label="Close window", command=self.on_closing)
 
         # EDIT menu containing "cut", "copy", and "paste"
