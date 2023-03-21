@@ -10,7 +10,7 @@ class CSVView(tk.Frame):
         super().__init__(parent)
         # creating the listbox then binding to the different events
         self.controller = controller
-        self.file_name_listbox = tk.Listbox(parent, selectmode=tk.SINGLE, background="darkgray")
+        self.file_name_listbox = tk.Listbox(parent, selectmode=tk.SINGLE, background="lightgray")
         self.file_name_listbox.place(relheight=1, relwidth=0.25)
         # registers the listbox on the drag-and-drop functionality using DnD2
         self.file_name_listbox.drop_target_register(DND_FILES)
