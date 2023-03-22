@@ -25,6 +25,7 @@ Bug fixes
 
 # FUTURE UPDATES
 Data visualization functionality 
+
 Editable cells
 
 
