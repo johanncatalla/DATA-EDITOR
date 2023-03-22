@@ -1,6 +1,6 @@
-# DATA-PROJECT-v1.0
+# DATA-PROJECT-v1.0.0
 
-This update to the data project will implement the MVC architecture, improve GUI layout, and add a CSV Viewer. 
+This update to the data project beta will implement the MVC architecture, improve GUI layout, and add a CSV Viewer. 
 The libraries that will be used are regex, tkinter, tkinterdnd2, csv, and pandas. 
 
 # Updated Text Editor
