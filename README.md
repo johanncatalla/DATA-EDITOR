@@ -20,7 +20,11 @@ Rewritten in MVC architecture
 Improved GUI layout
 
 Added CSV viewer with drag-and-drop functionality
- 
-TODO: Add data visualization
 
 Bug fixes
+
+# FUTURE UPDATES
+Data visualization functionality 
+Editable cells
+
+
