@@ -28,4 +28,5 @@ Data visualization functionality
 
 Editable cells
 
+Text Editor themes and fonts
 
