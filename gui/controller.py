@@ -1,14 +1,13 @@
 import tkinter as tk
+from tkinter import ttk
 from gui.models import Model
 from gui.views import View
 from csv_editor.csv_models import ModelCSV
-from csv_editor.csv_views import CSVView
-from tkinterdnd2 import TkinterDnD, DND_FILES
+from csv_editor.csv_views import CSVView, DataTable
+from tkinterdnd2 import TkinterDnD
 from pathlib import Path
 from tkinter import filedialog as fd
 from tkinter import messagebox
-import pandas as pd
-import csv
 import re
 import os
 
@@ -17,7 +16,7 @@ class CSV_Controller(TkinterDnD.Tk):
     def __init__(self):
         # inherit from dnd2 library for drag and drop
         super().__init__()
-
+    
         # Menus to CSV Editor
         self.menubar_csv = tk.Menu(self)
         self.config(menu=self.menubar_csv)
@@ -35,8 +34,70 @@ class CSV_Controller(TkinterDnD.Tk):
         
         # assign properties for widgets and table
         self.view = CSVView(self, self)
-        self.model = ModelCSV()      
+        self.model = ModelCSV()
+   
 
+    def on_double_click(self, event):
+
+        # identify region that was double-clicked
+        region_clicked = self.view.data_table.identify_region(event.x, event.y)
+        
+        # tree and cell only
+        if region_clicked not in ("tree", "cell"): 
+            return
+        
+        # which item was double-clicked returns #0, #1, #2 ...
+        column = self.view.data_table.identify_column(event.x)
+        # convert to integer to get index #0 will become 0
+        column_index = int(column[1:]) - 1
+
+        # example: 001
+        selected_iid = self.view.data_table.focus()
+
+        # information about the selected cell from iid
+        selected_values = self.view.data_table.item(selected_iid)
+        
+        selected_text = selected_values.get("values")[column_index]
+
+        # get x,y and w,h of cell 
+        column_box = self.view.data_table.bbox(selected_iid, column)
+        
+        entry_edit = ttk.Entry(self.view.data_table, width=column_box[2])
+        
+        entry_edit.editing_column_index = column_index
+        entry_edit.editing_item_iid = selected_iid
+
+        # insert the selected text to the entry widget
+        entry_edit.insert(0, selected_text)
+        entry_edit.select_range(0, tk.END)
+        entry_edit.focus()
+
+        entry_edit.bind("<FocusOut>", self.on_focus_out)
+        entry_edit.bind("<Return>", self.on_enter_pressed)
+
+        entry_edit.place(x=column_box[0],
+                         y=column_box[1],
+                         w=column_box[2],
+                         h=column_box[3])
+        
+    def on_focus_out(self, event):
+        event.widget.destroy()
+
+    def on_enter_pressed(self, event):
+        new_text = event.widget.get()
+
+        # such as I002
+        selected_iid = event.widget.editing_item_iid 
+
+        # index for the column such as 0, 1, 2
+        column_index = event.widget.editing_column_index
+
+        current_values = self.view.data_table.item(selected_iid).get("values")
+        current_values[column_index] = new_text
+        self.view.data_table.item(selected_iid, values=current_values)
+
+        event.widget.destroy()
+   
     # TODO Save csv on file 
     def save_csv_as(self):
         """saves the treeview as new csv file"""
@@ -50,10 +111,15 @@ class CSV_Controller(TkinterDnD.Tk):
         # check if user selecsted filename
         if csv_file:
             csv_writer = self.model.save_csv(csv_file)
-            header = columns
+            header = [self.view.data_table.heading(column)["text"] for column in self.view.data_table["columns"]]
+
             csv_writer.writerow(header)
 
-            for row in df_rows:
+            contents = []
+            for item in self.view.data_table.get_children():
+                contents.append(self.view.data_table.item(item)["values"])
+
+            for row in contents:
                 csv_writer.writerow(row)
 
     def set_datatable(self, dataframe):
@@ -92,12 +158,13 @@ class CSV_Controller(TkinterDnD.Tk):
         # convert the dataframe to numpy array then convert to list to make the data compatible for the Treeview
         global df_rows
         df_rows = self.model.row_content(dataframe)
-        
+              
         # insert the rows based on the format of df_rows
         for row in df_rows:
             self.view.data_table.insert("", "end", values=row)
         return None
     
+    # TODO communicate with the treeview, not with the dataframe
     def find_value(self, pairs: dict):
         """search table for every pair in entry widget
 
@@ -121,6 +188,7 @@ class CSV_Controller(TkinterDnD.Tk):
             new_df = new_df.query(query_string, engine="python")
         # draws the dataframe in the treeview 
         self._draw_table(new_df)
+    
     def reset_table(self):
         # resets the treeview by drawing the empty dataframe in the treeview
         self._draw_table(self.view.data_table.stored_dataframe)
@@ -163,12 +231,12 @@ class CSV_Controller(TkinterDnD.Tk):
         path = self.view.path_map[file_name]
         
         # create dataframe from path
-        df = self.model.open_csv_file(path)
+        self.df = self.model.open_csv_file(path)
         # TODO visualize
        
         # pass the dataframe to the datatable function which inserts it to an empty dataframe
         # which will then be drawn into the treeview
-        self.set_datatable(dataframe=df)
+        self.set_datatable(dataframe=self.df)
 
     def search_table(self, event):
         """takes the string in the search entry and converts it to 
