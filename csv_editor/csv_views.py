@@ -25,7 +25,7 @@ class CSVView(tk.Frame):
         self.search_entrybox.bind("<Return>", self.controller.search_table)
 
         # Connect data table to search page // Treeview
-        self.data_table = DataTable(parent)
+        self.data_table = DataTable(parent, controller)
         self.data_table.place(rely=0.03, relx=0.25, relwidth=0.75, relheight=0.97)
 
         # TODO Data Visualization 
@@ -54,9 +54,12 @@ class CSVView(tk.Frame):
 
 class DataTable(ttk.Treeview):
     # Treeview object to display dataframe
-    def __init__(self, parent):
+    def __init__(self, parent, controller):
         super().__init__(parent)
         
+        # binds the treeview to double-click
+        self.bind("<Double-1>", controller.on_double_click)
+
         self.master = parent
         # horizontal and vertical scrollbars
         scroll_Y = tk.Scrollbar(self, orient="vertical", command=self.yview)
