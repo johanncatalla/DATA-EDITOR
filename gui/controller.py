@@ -56,7 +56,7 @@ class CSV_Controller(TkinterDnD.Tk):
         
         # which item was double-clicked returns #0, #1, #2 ...
         column = self.table.identify_column(event.x)
-        # convert to integer to get index #0 will become 0
+        # convert to integer: index #0 will become 0
         column_index = int(column[1:]) - 1
 
         # example: 001
@@ -64,7 +64,6 @@ class CSV_Controller(TkinterDnD.Tk):
 
         # information about the selected cell from iid
         selected_values = self.table.item(selected_iid)
-        
         selected_text = selected_values.get("values")[column_index]
 
         # get x,y and w,h of cell ; data that will be used for the entry widget
