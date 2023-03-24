@@ -355,7 +355,7 @@ class Controller():
             "WM_DELETE_WINDOW",
             self.on_closing
         )
-
+    
     def run(self):
         """runs the program"""
         self.root.mainloop()
@@ -365,6 +365,9 @@ class Controller():
         view_csv = CSV_Controller()
         view_csv.run()
         
+    def on_enter_key(self, event):
+        """Search text when enter key is pressed"""
+        self.search_txt()
 
     def search_txt(self):
         """Search functionality of Text Editor"""

@@ -69,6 +69,9 @@ class ViewPanel():
         )
         self.entry.place(height=24, y=2, x=60, relwidth=1, anchor=tk.NW)
 
+        # binds the entry box to enter key for searching
+        self.entry.bind("<Return>", self.controller.on_enter_key)
+
         # Search button
         self.search_button = tk.Button(
             self.display_frame, 
