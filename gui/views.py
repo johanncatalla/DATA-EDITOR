@@ -37,6 +37,11 @@ class ViewPanel():
         self.txt_scrollbar.pack(side=tk.RIGHT, fill='y') 
         self.txt_editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        # bind to keyboard which triggers function that concatenates string to the string storage 
+        self.txt_editor.bind('<KeyRelease>', self.controller.on_key_release)
+        # binds the keyboard shortcuts for the CRUD
+        self.txt_editor.bind("<KeyPress>", self.controller.shortcut)
+
         # Enter text label
         self.label_enter = tk.Label(
             self.control_frame, 
@@ -130,21 +135,6 @@ class ViewPanel():
         )
         self.clear_search.place(rely=0.97, relx=0.5, relheight=0.03, relwidth=0.5)
 
-    def update(self, text=''):
-        """updates the top text editor
-
-        Args:
-            text (str, optional): string that will be inserted to text editor. Defaults to ''.
-        """
-        self.txt_editor.delete('1.0', 'end')
-        self.txt_editor.insert('1.0', text)
     
-    def update_display(self, text=''):
-        """updates search results
-
-        Args:
-            text (str, optional): string of search results. Defaults to ''.
-        """
-        self.display_text.insert('1.0', text)
     
     

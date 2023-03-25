@@ -32,7 +32,7 @@ class CSV_Controller(TkinterDnD.Tk):
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         self.geometry("1280x720")
         self.title("CSV Viewer")
-        
+            
         # assign properties for widgets and table
         self.view = CSVView(self, self)
         self.model = ModelCSV()
@@ -41,11 +41,11 @@ class CSV_Controller(TkinterDnD.Tk):
 
     def on_double_click(self, event):
         """gathers data of the selected cell and creates an entry box for modification
-        of the contents. Entrybox is bound to FocusOut and Double-click. FocusOut removes
-        the entry box. Double-click updates the treeview. 
+        of the contents. Entrybox is bound to FocusOut and Return key. FocusOut removes
+        the entry box. Return key updates the treeview based from the entry box content. 
 
         Args:
-            event (event): Double-click
+            event (event): triggers on double-click event
         """
         # identify region that was double-clicked
         region_clicked = self.table.identify_region(event.x, event.y)
@@ -292,7 +292,7 @@ class CSV_Controller(TkinterDnD.Tk):
         self.mainloop()
         
 class Controller():
-    # Controller object that will bind the view and model to create main app
+    # Text editor controller object
     def __init__(self):
         # root container
         self.root = tk.Tk()
@@ -302,10 +302,6 @@ class Controller():
         self.model = Model()
         # view object
         self.view = View(self.root, self) 
-        # bind to keyboard which triggers function that concatenates string to the string storage 
-        self.view.viewPanel.txt_editor.bind('<KeyRelease>', self.on_key_release)
-        # binds the keyboard shortcuts for the CRUD
-        self.view.viewPanel.txt_editor.bind("<KeyPress>", self.shortcut)
 
         # flag to check if a file is opened
         global open_status_name
@@ -369,6 +365,23 @@ class Controller():
         """Search text when enter key is pressed"""
         self.search_txt()
 
+    def update(self, text=''):
+        """updates the top text editor
+
+        Args:
+            text (str, optional): string that will be inserted to text editor. Defaults to ''.
+        """
+        self.view.viewPanel.txt_editor.delete('1.0', 'end')
+        self.view.viewPanel.txt_editor.insert('1.0', text)
+    
+    def update_display(self, text=''):
+        """updates search results
+
+        Args:
+            text (str, optional): string of search results. Defaults to ''.
+        """
+        self.view.viewPanel.display_text.insert('1.0', text)
+
     def search_txt(self):
         """Search functionality of Text Editor"""
         # getting the text from the Text editor
@@ -383,7 +396,7 @@ class Controller():
 
         # Inserting the string of results to the text editor in the display frame
         sentences = f"\nMatches:\n\n{string_searches}\n\n------END OF RESULTS------\n\n"
-        self.view.viewPanel.update_display(sentences)
+        self.update_display(sentences)
 
         # Iterator that inserts match count per keyword to the text editor
         for string in self.model.entry_list(entry_input):
@@ -393,7 +406,7 @@ class Controller():
                 res = len(re.findall(string, string_searches))
 
             count_matches = f"Number of matches for \"{string}\": {res}\n"    
-            self.view.viewPanel.update_display(count_matches)
+            self.update_display(count_matches)
         
         # storing the number of matches to return number of sentence matches then inserting to the text widget
         self.num_matches = len(lst_searches)
@@ -467,12 +480,12 @@ class Controller():
 
             # update text editor
             self.model.open(f)
-            self.view.viewPanel.update(self.model.text)
+            self.update(self.model.text)
 
     def new_file(self):
         """create new file"""
         # Deletes previous text
-        self.view.viewPanel.update()
+        self.update()
         # Updates the title and status bar
         self.root.title('New File')
         self.view.viewPanel.status_bar.config(text="New File       ")
