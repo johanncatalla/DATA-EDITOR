@@ -75,6 +75,7 @@ class DataTable(ttk.Treeview):
 
         # Empty Dataframe object for the treeview to use later
         self.stored_dataframe = pd.DataFrame()
+        
 
 class CanvasViz(ttk.Treeview):
     def __init__(self, parent):
