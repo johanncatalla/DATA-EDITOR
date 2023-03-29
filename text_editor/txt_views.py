@@ -1,15 +1,7 @@
 import tkinter as tk
-
-class View():
-    # view object to display text editor
-    def __init__(self, master, controller):
-        self.controller = controller
-        self.frame = tk.Frame(master)
-        self.frame.pack()
-        self.viewPanel = ViewPanel(master, controller)
-       
+      
 class ViewPanel():
-    """text editor widgets"""
+    """View object which will contain widgets for the text editor"""
     def __init__(self, root, controller):
         self.controller = controller
 

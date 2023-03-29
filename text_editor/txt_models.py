@@ -2,6 +2,7 @@ import os
 import re
 
 class Model():
+    """Model object which contains all methods for the text editor"""
     def __init__(self):
         """where the text in the editor will be stored"""
         self.text = ''

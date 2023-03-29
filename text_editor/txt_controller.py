@@ -1,6 +1,6 @@
 import tkinter as tk
 from text_editor.txt_models import Model
-from text_editor.txt_views import View
+from text_editor.txt_views import ViewPanel
 from csv_editor.csv_controller import CSV_Controller
 from tkinter import filedialog as fd
 from tkinter import messagebox
@@ -8,7 +8,7 @@ import re
 import os
 
 class Controller():
-    # Text editor controller object
+    """Controller object for the text editor"""
     def __init__(self):
         # root container
         self.root = tk.Tk()
@@ -17,14 +17,12 @@ class Controller():
         # model ob`ject
         self.model = Model()
         # view object
-        self.view = View(self.root, self) 
+        self.view = ViewPanel(self.root, self) 
 
         # flag to check if a file is opened
-        global open_status_name
         self.open_status_name = False
 
         # flag to check is there is text selected
-        global selected
         self.selected = False
 
         # Menus
@@ -87,8 +85,8 @@ class Controller():
         Args:
             text (str, optional): string that will be inserted to text editor. Defaults to ''.
         """
-        self.view.viewPanel.txt_editor.delete('1.0', 'end')
-        self.view.viewPanel.txt_editor.insert('1.0', text)
+        self.view.txt_editor.delete('1.0', 'end')
+        self.view.txt_editor.insert('1.0', text)
     
     def update_display(self, text=''):
         """updates search results
@@ -96,14 +94,14 @@ class Controller():
         Args:
             text (str, optional): string of search results. Defaults to ''.
         """
-        self.view.viewPanel.display_text.insert('1.0', text)
+        self.view.display_text.insert('1.0', text)
 
     def search_txt(self):
         """Search functionality of Text Editor"""
         # getting the text from the Text editor
-        text_editor_input = self.view.viewPanel.txt_editor.get("1.0", tk.END)
-        entry_input = self.view.viewPanel.entry.get()
-        option_value = self.view.viewPanel.value_inside.get()
+        text_editor_input = self.view.txt_editor.get("1.0", tk.END)
+        entry_input = self.view.entry.get()
+        option_value = self.view.value_inside.get()
 
         # call search_sentence function to find list of all sentence matches
         lst_searches = self.model.search_sentence(text_editor_input, entry_input, option_value)
@@ -126,11 +124,11 @@ class Controller():
         
         # storing the number of matches to return number of sentence matches then inserting to the text widget
         self.num_matches = len(lst_searches)
-        self.view.viewPanel.display_text.insert('1.0', f"Sentence matches: {self.num_matches}\n")
+        self.view.display_text.insert('1.0', f"Sentence matches: {self.num_matches}\n")
     
     def destroy(self):
         """Clears the search results"""
-        self.view.viewPanel.display_text.delete('1.0', tk.END)
+        self.view.display_text.delete('1.0', tk.END)
 
     def shortcut(self, event):
         """CRUD shortcuts for the text editor"""
@@ -150,31 +148,31 @@ class Controller():
 
     def on_key_release(self, event):
         """Inserts the inputted string to variable per key release"""
-        self.model.text = self.view.viewPanel.txt_editor.get('1.0', tk.END)
+        self.model.text = self.view.txt_editor.get('1.0', tk.END)
 
     # Functions for edit menu
     def cut_text(self,e):
         """cuts the text"""
         global selected
-        if self.view.viewPanel.txt_editor.selection_get():
+        if self.view.txt_editor.selection_get():
             # Grabs the selected text from the text editor
-            self.selected = self.view.viewPanel.txt_editor.selection_get()
+            self.selected = self.view.txt_editor.selection_get()
             # Deletes the selected text from the text editor
-            self.view.viewPanel.txt_editor.delete("sel.first", "sel.last")
+            self.view.txt_editor.delete("sel.first", "sel.last")
 
     def copy_text(self,e):
         """copies the text"""
-        if self.view.viewPanel.txt_editor.selection_get():
+        if self.view.txt_editor.selection_get():
             # Grabs the selected text from the text editor
-            self.selected = self.view.viewPanel.txt_editor.selection_get()
+            self.selected = self.view.txt_editor.selection_get()
 
     def paste_text(self,e):
         """pastes the text"""
         if self.selected:
             # Finds the position of the text cursor
-            self.position = self.view.viewPanel.txt_editor.index(tk.INSERT)
+            self.position = self.view.txt_editor.index(tk.INSERT)
             # inserts the grabbed text at the position of the cursor
-            self.view.viewPanel.txt_editor.insert(self.position, self.selected)
+            self.view.txt_editor.insert(self.position, self.selected)
 
     def open_text_file(self):
         """opens file and inserts it to text editor"""
@@ -185,13 +183,12 @@ class Controller():
         )
         
         if f:
-            # Make filename global to access it later
-            global open_status_name
+            # update flag to current filename
             self.open_status_name = f
             
             # Update status bars
             extract_filename = re.search(r"[^/\\]+$", self.open_status_name).group(0)
-            self.view.viewPanel.status_bar.config(text=f"{f}       ")            
+            self.view.status_bar.config(text=f"{f}       ")            
             self.root.title(f"{extract_filename}")
 
             # update text editor
@@ -204,11 +201,10 @@ class Controller():
         self.update()
         # Updates the title and status bar
         self.root.title('New File')
-        self.view.viewPanel.status_bar.config(text="New File       ")
+        self.view.status_bar.config(text="New File       ")
 
         # Since the new file is still not saved in the directory, sets text editor flag to False
-        # so that when we click the "Delete File", the previous file will not be deleted
-        global open_status_name
+        # so that when the user clicks the "Delete File", the previous file will not be deleted
         self.open_status_name = False   
 
     def save_file(self):
@@ -219,7 +215,7 @@ class Controller():
             self.model.save(self.open_status_name)
 
             #updates the status bar
-            self.view.viewPanel.status_bar.config(text=f"Saved: {self.open_status_name}       ")
+            self.view.status_bar.config(text=f"Saved: {self.open_status_name}       ")
 
         # if the file is not in the directory, calls the "Save File as..." function
         else:
@@ -237,7 +233,7 @@ class Controller():
         if text_file:
             # Updade Status Bars
             name = text_file
-            self.view.viewPanel.status_bar.config(text=f"Saved: {name}       ")
+            self.view.status_bar.config(text=f"Saved: {name}       ")
             # gets the file name and inserts it to title
             extract_filename = re.search(r"[^/\\]+$", text_file).group(0)
             self.root.title(f"{extract_filename}")
@@ -246,7 +242,7 @@ class Controller():
             self.model.save(text_file)
         else:
             pass
-        
+        # update flag to current filename
         self.open_status_name = text_file
 
     def save_export(self):
@@ -263,10 +259,10 @@ class Controller():
         if text_file:
             # Updade Status Bars
    
-            self.view.viewPanel.status_bar.config(text=f"Exported: {text_file}       ")
+            self.view.status_bar.config(text=f"Exported: {text_file}       ")
             
             # Save the file
-            results = self.view.viewPanel.display_text.get(1.0, tk.END)
+            results = self.view.display_text.get(1.0, tk.END)
             self.model.export_searches(results, text_file)
         else:
             pass
