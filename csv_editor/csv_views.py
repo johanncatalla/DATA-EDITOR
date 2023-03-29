@@ -5,16 +5,23 @@ import hvplot.pandas
 from tkinter import ttk
 
 class CSVView(tk.Frame):
-    # object that will be the frame of the gui that will contain the widgets 
+    """View object which contains widgets for the CSV editor
+
+    Args:
+        tk (parent): inherits from Frame 
+    """
     def __init__(self, parent, controller):
         super().__init__(parent)
-        # creating the listbox then binding to the different events
+
+        # controller representation
         self.controller = controller
+
+        # creating the listbox / listbox will display filenames to be clicked by the user to open the file
         self.file_name_listbox = tk.Listbox(parent, selectmode=tk.SINGLE, background="lightgray")
         self.file_name_listbox.place(relheight=1, relwidth=0.25)
         # registers the listbox on the drag-and-drop functionality using DnD2
         self.file_name_listbox.drop_target_register(DND_FILES)
-        # binds the listbox to dnd
+        # binds the listbox to dnd Drop event
         self.file_name_listbox.dnd_bind("<<Drop>>", self.controller.drop_inside_list_box)
         # binds the lsitbox to double click to open the file
         self.file_name_listbox.bind("<Double-1>", self.controller._display_file)
@@ -50,10 +57,15 @@ class CSVView(tk.Frame):
         self.option_menu = tk.OptionMenu(parent, self.search_val, *self.search_options)
         self.option_menu.place(width=190, relx=1, height=24, anchor=tk.NE)
 
+        # dictionary of {filename: filepath} pair for listbox interaction
         self.path_map = {}
 
 class DataTable(ttk.Treeview):
-    # Treeview object to display dataframe
+    """Treeview object to display dataframe
+
+    Args:
+        ttk (parent): inherits from treeview
+    """
     def __init__(self, parent, controller):
         super().__init__(parent)
         

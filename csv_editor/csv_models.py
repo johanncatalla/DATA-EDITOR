@@ -2,6 +2,7 @@ import pandas as pd
 import csv
 
 class ModelCSV():
+    """Model object which contains all methods for the CSV Editor"""
     def open_csv_file(self, path):
         """reads dataframe from path"""
         df = pd.read_csv(path)

@@ -8,7 +8,11 @@ from tkinter import filedialog as fd
 import pandas as pd
 
 class CSV_Controller(TkinterDnD.Tk):
-    # Controller object for csv viewer
+    """Controller object for CSV editor
+
+    Args:
+        TkinterDnD (parent): inherits from dnd to enable drag-and-drop
+    """
     def __init__(self):
         # inherit from dnd2 library for drag and drop
         super().__init__()
@@ -19,13 +23,13 @@ class CSV_Controller(TkinterDnD.Tk):
 
         # File Menu
         self.file_menu = tk.Menu(self.menubar_csv, tearoff=0)
-        self.file_menu.add_command(label="Open File")
+        self.file_menu.add_command(label="Open File", command=self.open_csv_file)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Save", command=self.save_csv_file)
         self.file_menu.add_command(label="Save as...", command=self.save_csv_as)
         self.menubar_csv.add_cascade(label="File", menu=self.file_menu)
 
-        # Main Frame
-        self.main_frame = tk.Frame(self)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        # size and title
         self.geometry("1280x720")
         self.title("CSV Viewer")
             
@@ -33,7 +37,53 @@ class CSV_Controller(TkinterDnD.Tk):
         self.view = CSVView(self, self)
         self.model = ModelCSV()
         self.table = self.view.data_table
-   
+
+        # flag to check if a file is opened
+        self.open_status_name = False
+
+    def open_csv_file(self):
+        """Open CSV file through menu"""
+        file = fd.askopenfilename(
+            initialdir="D:/Downloads/",
+            title="Open File",
+            filetypes=(('.csv files', '*.csv'),)
+        )
+
+        # get current items in listbox to avoid duplicate files
+        current_listbox_items = set(self.view.file_name_listbox.get(0, "end"))
+
+        if file:
+            if file.endswith(".csv"):
+                # update flag to current filename
+                self.open_status_name = file
+                # create object from filepath to return the name of the file
+                path_object = Path(file)
+                file_name = path_object.name 
+                # check if the file name is in list box
+                if file_name not in current_listbox_items:
+                    # inserts the file name if not in list box
+                    self.view.file_name_listbox.insert("end", file_name)
+                    # inserts the {filename: filepath} pair in the dictionary access the pair to put the filename
+                    # in the listbox and display the dataframe through the filepath
+                    self.view.path_map[file_name] = file
+
+    def save_csv_file(self):
+        """Saves the current csv file / writes on the file"""
+        if self.open_status_name:
+            csv_writer = self.model.save_csv(self.open_status_name)
+            # list of headings of the treeview
+            header = [self.table.heading(column)["text"] for column in self.table["columns"]]
+
+            csv_writer.writerow(header)
+
+            # list treeview values
+            contents = [self.table.item(item)["values"] for item in self.table.get_children()]
+            
+            for row in contents:
+                csv_writer.writerow(row)
+
+        else:
+            self.save_csv_as()
 
     def on_double_click(self, event):
         """gathers data of the selected cell and creates an entry box for modification
@@ -148,6 +198,9 @@ class CSV_Controller(TkinterDnD.Tk):
             for row in contents:
                 csv_writer.writerow(row)
 
+        # update flag to current filename
+        self.open_status_name = csv_file
+
     def set_datatable(self, dataframe):
         """Copies the string version of the original dataframe to the spare dataframe for string query
         then draws the original dataframe to the treeview
@@ -257,6 +310,9 @@ class CSV_Controller(TkinterDnD.Tk):
         # takes the file path from the path_map dictionary using the selected file name as key
         path = self.view.path_map[file_name]
         
+        # update flag to current filename
+        self.open_status_name = path
+
         # create dataframe from path
         self.df = self.model.open_csv_file(path)
         # TODO visualize
