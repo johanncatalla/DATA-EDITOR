@@ -1,6 +1,6 @@
 import tkinter as tk
-from gui.models import Model
-from gui.views import View
+from text_editor.txt_models import Model
+from text_editor.txt_views import View
 from csv_editor.csv_controller import CSV_Controller
 from tkinter import filedialog as fd
 from tkinter import messagebox
