@@ -19,7 +19,8 @@ class CSV_Controller(TkinterDnD.Tk):
 
         # File Menu
         self.file_menu = tk.Menu(self.menubar_csv, tearoff=0)
-        self.file_menu.add_command(label="Save file", command=self.save_csv_as)
+        self.file_menu.add_command(label="Open File")
+        self.file_menu.add_command(label="Save as...", command=self.save_csv_as)
         self.menubar_csv.add_cascade(label="File", menu=self.file_menu)
 
         # Main Frame
