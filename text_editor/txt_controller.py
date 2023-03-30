@@ -14,6 +14,8 @@ class Controller():
         self.root = tk.Tk()
         self.root.geometry("1280x720")
         self.root.title("New File")
+        self.root.wm_attributes("-topmost", False)
+      
         # model ob`ject
         self.model = Model()
         # view object
