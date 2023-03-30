@@ -1,5 +1,6 @@
 import pandas as pd
 import csv
+import os
 
 class ModelCSV():
     """Model object which contains all methods for the CSV Editor"""
@@ -14,6 +15,9 @@ class ModelCSV():
         csv_writer = csv.writer(file)
         return csv_writer
     
+    def delete_csv(self, path):
+        os.remove(path)
+
     def row_content(self, dataframe):
         """extracts the contents of the row in the dataframe. excludes heading"""
         df = dataframe.to_numpy().tolist()

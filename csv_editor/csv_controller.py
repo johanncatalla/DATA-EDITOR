@@ -5,7 +5,11 @@ from csv_editor.csv_views import CSVView
 from tkinterdnd2 import TkinterDnD
 from pathlib import Path
 from tkinter import filedialog as fd
+from tkinter import messagebox
 import pandas as pd
+import re
+import os
+
 
 class CSV_Controller(TkinterDnD.Tk):
     """Controller object for CSV editor
@@ -27,6 +31,8 @@ class CSV_Controller(TkinterDnD.Tk):
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Save", command=self.save_csv_file)
         self.file_menu.add_command(label="Save as...", command=self.save_csv_as)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Delete", command=self.delete_csv_file)
         self.menubar_csv.add_cascade(label="File", menu=self.file_menu)
 
         # size and title
@@ -84,6 +90,52 @@ class CSV_Controller(TkinterDnD.Tk):
 
         else:
             self.save_csv_as()
+
+    def delete_csv_file(self):
+        if self.open_status_name:
+            if os.path.exists(self.open_status_name):
+                self.on_deletion()
+
+        else:
+            messagebox.showinfo(
+                title="File not found",
+                message="The file you are trying to delete does not exist"
+            )
+
+    def on_deletion(self):
+        # regex that takes tha file name from the directory
+        extract_filename = re.search(r"[^/\\]+$", self.open_status_name).group(0)
+        #regex that takes the directory from the file name
+        directory_path = re.search(r"^(.*)/[^/]+$", self.open_status_name).group(1)
+
+        # message prompt to ask the user if they really intend to delete the file
+        if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{extract_filename}\" from {directory_path}?"):
+            # deletes the file that is opened
+            self.model.delete_csv(self.open_status_name)
+            
+            # delete content of treeview
+            self.view.data_table.stored_dataframe = pd.DataFrame()
+            self.reset_table()
+
+            # update file paths
+            for key, value in dict(self.view.file_name_listbox).items():
+                if value == self.open_status_name:
+                    del self.view.file_name_listbox[key]
+
+            # update listbox
+            # create path object to extract file name
+            path_object = Path(self.open_status_name)
+            file_name = path_object.name
+            # get index of filename to delete specific item from listbox
+            idx = self.view.file_name_listbox.get(0, tk.END).index(file_name)
+            self.view.file_name_listbox.delete(idx)
+
+            # update flag
+            self.open_status_name = False
+
+            # Confirmation message that the file is deleted
+            messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{extract_filename}\" from {directory_path}.")
+    
 
     def on_double_click(self, event):
         """gathers data of the selected cell and creates an entry box for modification
