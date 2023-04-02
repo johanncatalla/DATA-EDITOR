@@ -1,32 +1,35 @@
-# DATA-PROJECT-v1.0.0
+# DATA-PROJECT-v1.0.1
 
-This update to the data project beta will implement the MVC architectural pattern, improve GUI layout, and add a CSV Editor. 
-The libraries that will be used are regex, tkinter, tkinterdnd2, csv, and pandas. 
+Editable cells, case-insensitive search, and CRUD functions for CSV Editor
 
-# Updated Text Editor
-![Text Editor](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/text_editor_new.png)
-
-# What's New: CSV Editor with Search
+# CSV Editor with Search
 ![CSV Viewer](https://github.com/johanncatalla/DATA-PROJECT/blob/main/images/csv_editor.png)
+
+# Text Editor with Search
+![Text Editor](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/text_editor_new.png)
 
 # PROJECT DESCRIPTION:
 
-A Text Editor and CSV Viewer using Tkinter utilizing MVC architecture of the Object-Oriented Programming approach. The text Editor lets the user create a new file (CREATE), open (READ), save (UPDATE), and delete (DELETE) files. The program also has a search functionality (REGEX) that matches input word/s. Moreover, the user can also view CSV files (pandas), and search records (dataframe query). 
+A Text Editor and CSV Viewer using Tkinter utilizing MVC architecture of the Object-Oriented Programming approach. The user can search records and perform CRUD operations on both applications. 
 
 # IMPROVEMENTS
 
-Rewritten in MVC architecture
+Editable cells
 
-Improved GUI layout
-
-Added CSV viewer with drag-and-drop functionality
+Case Insensitive Search
 
 Bug fixes
 
-# FUTURE UPDATES
-Data visualization functionality 
-
-Editable cells
-
-Text Editor themes and fonts
+# PROPERTIES
+The search functionality has the following properties:
+1. It can be case-sensitive or case-insensitive
+2. Multiple Words in the search bar are considered separate.
+3. The keywords are matched to the sentences that contain them, regardless of the keyword's position in the sentence.
+4. Statements with new lines separating them and having no punctuation are considered one sentence.
+5. It does not match words with prefixes or suffixes that are digits or alphabets. 
+6. It matches words with prefixes or suffixes that are special characters or punctuations.
+7. The search function returns the following to the text editor in the display frame:
+  1. the number of sentence matches
+  2. the number of matches per keyword in the text
+  3. the sentence matches
 
