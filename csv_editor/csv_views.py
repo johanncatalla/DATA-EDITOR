@@ -57,9 +57,6 @@ class CSVView(tk.Frame):
         self.option_menu = tk.OptionMenu(parent, self.search_val, *self.search_options)
         self.option_menu.place(width=190, relx=1, height=24, anchor=tk.NE)
 
-        # dictionary of {filename: filepath} pair for listbox interaction
-        self.path_map = {}
-
 class DataTable(ttk.Treeview):
     """Treeview object to display dataframe
 
@@ -84,10 +81,6 @@ class DataTable(ttk.Treeview):
         style = ttk.Style(self)
         style.theme_use("default")
         style.map("Treeview")
-
-        # Empty Dataframe object for the treeview to use later
-        self.stored_dataframe = pd.DataFrame()
-        
 
 class CanvasViz(ttk.Treeview):
     def __init__(self, parent):

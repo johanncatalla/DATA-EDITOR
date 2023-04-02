@@ -4,6 +4,12 @@ import os
 
 class ModelCSV():
     """Model object which contains all methods for the CSV Editor"""
+    def __init__(self):
+        # dictionary of {filename: filepath} pair for listbox interaction
+        self.path_map = {}
+        # Empty Dataframe object for to reset modified dataframe
+        self.stored_dataframe= pd.DataFrame()
+
     def open_csv_file(self, path):
         """reads dataframe from path"""
         df = pd.read_csv(path)
