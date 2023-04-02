@@ -2,15 +2,15 @@
 
 Editable cells, case-insensitive search, and CRUD functions for CSV Editor
 
+# PROJECT DESCRIPTION:
+
+A Text Editor and CSV Viewer using Tkinter utilizing MVC architecture of the Object-Oriented Programming approach. The user can search records and perform CRUD operations on both applications. 
+
 # CSV Editor with Search
 ![CSV Viewer](https://github.com/johanncatalla/DATA-PROJECT/blob/main/images/csv_editor.png)
 
 # Text Editor with Search
 ![Text Editor](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/text_editor_new.png)
-
-# PROJECT DESCRIPTION:
-
-A Text Editor and CSV Viewer using Tkinter utilizing MVC architecture of the Object-Oriented Programming approach. The user can search records and perform CRUD operations on both applications. 
 
 # IMPROVEMENTS
 
