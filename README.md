@@ -7,7 +7,7 @@ The libraries that will be used are regex, tkinter, tkinterdnd2, csv, and pandas
 ![Text Editor](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/text_editor_new.png)
 
 # What's New: CSV Editor with Search
-![CSV Viewer](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/CSV%20viewer_new1.png)
+![CSV Viewer](https://github.com/johanncatalla/DATA-PROJECT/blob/main/images/csv_editor.png)
 
 # PROJECT DESCRIPTION:
 
