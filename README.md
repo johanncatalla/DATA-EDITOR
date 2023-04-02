@@ -33,3 +33,13 @@ The search functionality has the following properties:
     2. the number of matches per keyword in the text
     3. the sentence matches
 
+The record searching has the following properties:
+* To search records the input format should be: column1=value,column2=value
+* The user can search a column only once.
+    * In cases that the user inputs the same column multiple times (i.e. column1=value,column1=value), the last value will be searched.
+* The user can specify whether they want to display all columns or just the inputted column names in the entry box.
+    * In cases that the user wants to display a column but does not want to match a value, they can input their entry without the value (i.e. column1=,column2=)
+* The column name is case insensitive but should be the exact string in the header (e.g. Total Household Income).
+* The column value is case insensitive but can be not the entire value (e.g. "Ca" matches cat, Camel...).
+* The user can search only with the "=" operator. 
+
