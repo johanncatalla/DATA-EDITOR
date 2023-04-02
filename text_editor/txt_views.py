@@ -28,7 +28,7 @@ class ViewPanel():
 
         self.txt_scrollbar.pack(side=tk.RIGHT, fill='y') 
         self.txt_editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
+    
         # bind to keyboard which triggers function that concatenates string to the string storage 
         self.txt_editor.bind('<KeyRelease>', self.controller.on_key_release)
         # binds the keyboard shortcuts for the CRUD

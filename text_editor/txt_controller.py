@@ -12,6 +12,7 @@ class Controller():
     def __init__(self):
         # root container
         self.root = tk.Tk()
+        
         self.root.geometry("1280x720")
         self.root.title("New File")
         self.root.wm_attributes("-topmost", False)

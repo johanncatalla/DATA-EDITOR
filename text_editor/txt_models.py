@@ -4,7 +4,7 @@ import re
 class Model():
     """Model object which contains all methods for the text editor"""
     def __init__(self):
-        """where the text in the editor will be stored"""
+        # property that contains text from the text editor
         self.text = ''
 
     def open(self, filename: str):
