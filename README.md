@@ -21,7 +21,7 @@ Case Insensitive Search
 Bug fixes
 
 # PROPERTIES
-The search functionality has the following properties:
+The search functionality of the Text Editor has the following properties:
 * It can be case-sensitive or case-insensitive
 * Multiple Words in the search bar are considered separate.
 * The keywords are matched to the sentences that contain them, regardless of the keyword's position in the sentence.
@@ -33,7 +33,7 @@ The search functionality has the following properties:
     2. the number of matches per keyword in the text
     3. the sentence matches
 
-The record searching has the following properties:
+The record searching of the CSV Editor has the following properties:
 * To search records the input format should be: column1=value,column2=value
 * The user can search a column only once.
     * In cases that the user inputs the same column multiple times (i.e. column1=value,column1=value), the last value will be searched.
