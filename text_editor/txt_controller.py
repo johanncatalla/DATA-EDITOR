@@ -58,11 +58,17 @@ class Controller():
         self.edit_menu.add_separator()
         self.edit_menu.add_command(label="Paste", command=lambda: self.paste_text(False))
         
+        self.database_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.database_menu.add_command(label="Save to database")
+        self.database_menu.add_separator()
+        self.database_menu.add_command(label="Open from database")
+
         # add cascade and labels for menus
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.menu_bar.add_cascade(label="Actions", menu=self.action_menu)
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
-
+        self.menu_bar.add_cascade(label="Database", menu=self.database_menu)
+        
         # adds a protocol when closing tab to trigger yes or no prompt
         self.root.protocol(
             "WM_DELETE_WINDOW",
