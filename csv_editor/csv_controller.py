@@ -71,7 +71,7 @@ class CSV_Controller(TkinterDnD.Tk):
                     self.view.file_name_listbox.insert("end", file_name)
                     # inserts the {filename: filepath} pair in the dictionary access the pair to put the filename
                     # in the listbox and display the dataframe through the filepath
-                    self.view.path_map[file_name] = file
+                    self.model.path_map[file_name] = file
 
     def save_csv_file(self):
         """Saves the current csv file / writes on the file"""
@@ -103,18 +103,18 @@ class CSV_Controller(TkinterDnD.Tk):
             )
 
     def on_deletion(self):
-        # regex that takes tha file name from the directory
-        extract_filename = re.search(r"[^/\\]+$", self.open_status_name).group(0)
-        #regex that takes the directory from the file name
-        directory_path = re.search(r"^(.*)/[^/]+$", self.open_status_name).group(1)
+        # create path object to extract file name and path
+        path_object = Path(self.open_status_name)
+        file_name = path_object.name
+        file_path = path_object.parent
 
         # message prompt to ask the user if they really intend to delete the file
-        if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{extract_filename}\" from {directory_path}?"):
+        if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{file_name}\" from {file_path}?"):
             # deletes the file that is opened
             self.model.delete_csv(self.open_status_name)
             
             # delete content of treeview
-            self.view.data_table.stored_dataframe = pd.DataFrame()
+            self.model.stored_dataframe = pd.DataFrame()
             self.reset_table()
 
             # update file paths
@@ -123,9 +123,6 @@ class CSV_Controller(TkinterDnD.Tk):
                     del self.view.file_name_listbox[key]
 
             # update listbox
-            # create path object to extract file name
-            path_object = Path(self.open_status_name)
-            file_name = path_object.name
             # get index of filename to delete specific item from listbox
             idx = self.view.file_name_listbox.get(0, tk.END).index(file_name)
             self.view.file_name_listbox.delete(idx)
@@ -134,7 +131,7 @@ class CSV_Controller(TkinterDnD.Tk):
             self.open_status_name = False
 
             # Confirmation message that the file is deleted
-            messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{extract_filename}\" from {directory_path}.")
+            messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{file_name}\" from {file_path}.")
     
     def on_double_click(self, event):
         """gathers data of the selected cell and creates an entry box for modification
@@ -220,7 +217,7 @@ class CSV_Controller(TkinterDnD.Tk):
         # update stored dataframe for searching; store new treeview to the 'stored_dataframe' property
         tree_columns = [self.table.heading(column)["text"] for column in self.table["columns"]]
         tree_rows = [self.table.item(item)["values"] for item in self.table.get_children()]
-        self.table.stored_dataframe = pd.DataFrame(tree_rows, columns=tree_columns)
+        self.model.stored_dataframe = pd.DataFrame(tree_rows, columns=tree_columns)
 
         event.widget.destroy()
    
@@ -259,7 +256,7 @@ class CSV_Controller(TkinterDnD.Tk):
             dataframe (DataFrame): opened dataframe in read mode
         """
         # takes the empty dataframe and stores it in the "dataframe" attribute
-        self.table.stored_dataframe = dataframe.astype(str)
+        self.model.stored_dataframe = dataframe.astype(str)
         # draws the dataframe in the treeview using the function _draw_table
         self._draw_table(dataframe)
 
@@ -307,9 +304,9 @@ class CSV_Controller(TkinterDnD.Tk):
         
         # takes the empty dataframe and stores it in a property
         if option_value == "Display All Columns":
-            new_df = self.table.stored_dataframe
+            new_df = self.model.stored_dataframe
         else:
-            new_df = self.table.stored_dataframe[column_keys]
+            new_df = self.model.stored_dataframe[column_keys]
         
         # create new dataframe with lowercase columns for case insensitive search
         new_df_copy = new_df.copy()
@@ -332,7 +329,7 @@ class CSV_Controller(TkinterDnD.Tk):
     
     def reset_table(self):
         # resets the treeview by drawing the stored dataframe
-        self._draw_table(self.table.stored_dataframe)
+        self._draw_table(self.model.stored_dataframe)
 
     def drop_inside_list_box(self, event):
         """tkinterdnd2 event that allows the user to drop files in the listbox
@@ -360,14 +357,14 @@ class CSV_Controller(TkinterDnD.Tk):
                     self.view.file_name_listbox.insert("end", file_name)
                     # inserts the {filename: filepath} pair in the dictionary access the pair to put the filename
                     # in the listbox and display the dataframe through the filepath
-                    self.view.path_map[file_name] = file_path
+                    self.model.path_map[file_name] = file_path
 
     def _display_file(self, event):
         """Displays the dataframe of the file in the listbox to the treeview by double-click event"""
         # get the file name of the current cursor selection
         file_name = self.view.file_name_listbox.get(self.view.file_name_listbox.curselection())
         # takes the file path from the path_map dictionary using the selected file name as key
-        path = self.view.path_map[file_name]
+        path = self.model.path_map[file_name]
         
         # update flag to current filename
         self.open_status_name = path
