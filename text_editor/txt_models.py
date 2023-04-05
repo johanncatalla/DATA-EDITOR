@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 
 class Model():
     """Model object which contains all methods for the text editor"""
@@ -93,4 +94,6 @@ class Model():
         lst_searches = pattern.findall(clean_editor)
 
         return lst_searches
+    
+    
     

@@ -4,6 +4,7 @@ from text_editor.txt_views import ViewPanel
 from csv_editor.csv_controller import CSV_Controller
 from tkinter import filedialog as fd
 from tkinter import messagebox
+from database.database import Database
 import re
 import os
 
@@ -21,6 +22,9 @@ class Controller():
         self.model = Model()
         # view object
         self.view = ViewPanel(self.root, self) 
+
+        self.database = Database()
+        self.database.create_database()
 
         # flag to check if a file is opened
         self.open_status_name = False
@@ -58,10 +62,11 @@ class Controller():
         self.edit_menu.add_separator()
         self.edit_menu.add_command(label="Paste", command=lambda: self.paste_text(False))
         
+        # database CRUD menu
         self.database_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.database_menu.add_command(label="Save to database")
+        self.database_menu.add_command(label="Save to database", command=self.db_save)
         self.database_menu.add_separator()
-        self.database_menu.add_command(label="Open from database")
+        self.database_menu.add_command(label="Open from database", command=self.db_read)
 
         # add cascade and labels for menus
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
@@ -78,6 +83,22 @@ class Controller():
     def run(self):
         """runs the program"""
         self.root.mainloop()
+
+    def db_save(self):
+        """save to database"""
+        current_fname = self.root.title()
+        current_content = self.view.txt_editor.get('1.0', tk.END)
+
+        self.database.save_to_db(current_fname, current_content)
+
+        messagebox.showinfo(
+                title = "Saved Successfully!",
+                message = f"Saved {current_fname} to Database 'Text Editor'."
+            )
+
+    def db_read(self):
+        fname_lst_db = self.database.get_fnames()
+        
 
     def open_csv_viewer(self):
         """Open the CSV Viewer"""
