@@ -7,7 +7,7 @@ class Database():
         cnx = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="yourpassword"
+            password="Catalla109730"
         )
 
         cursor = cnx.cursor()
@@ -41,7 +41,8 @@ class Database():
         cursor.close()
         cnx.close()
 
-    def get_fnames(self):
+    def get_fnames(self) -> list:
+        """Get 'filenames' from database"""
         cnx = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -61,6 +62,36 @@ class Database():
         return values
     
     # TODO open file
+
+    def get_val_from_fname(self, fname) -> str:
+        """Get content of filename in database
+
+        Args:
+            fname (str): File name from option menu
+
+        Returns:
+            str: content of the file
+        """
+        cnx = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="Catalla109730"
+        )
+        cursor = cnx.cursor()
+        cursor.execute("USE text_editor")
+
+        query = "SELECT t1.content FROM Text_Data t1 WHERE t1.filename = %s"
+        val = fname
+
+        cursor.execute(query, (val,))
+
+        result = cursor.fetchone()
+
+        if result:
+            return result
+        
+        cursor.close()
+        cnx.close()
 
 
 if __name__ == "__main__":
