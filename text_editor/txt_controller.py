@@ -97,7 +97,12 @@ class Controller():
             )
 
     def db_read(self):
+        # list of filenames from database to be displayed
         fname_lst_db = self.database.get_fnames()
+        
+        # TODO use filename from popup menu
+        res = self.database.get_val_from_fname('suicide2.txt')
+        self.view.txt_editor.insert('1.0', res)
         
 
     def open_csv_viewer(self):
