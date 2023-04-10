@@ -127,6 +127,28 @@ class ViewPanel():
         )
         self.clear_search.place(rely=0.97, relx=0.5, relheight=0.03, relwidth=0.5)
 
-    
-    
+    def open_popup(self, options):
+        """popup window to select filename to be opened from database
+
+        Args:
+            options (list): list of filenames in database
+        """
+        self.popup_root = tk.Tk()
+        self.popup_root.geometry("150x100")
+        main_frame = tk.Frame(self.popup_root)
+        main_frame.pack(fill=tk.BOTH)
+
+        # Stringvar to interact with the option menu
+        self.db_fname = tk.StringVar(main_frame)
+        self.db_fname.set(options[0]) 
+
+        # Option menu containing filenames
+        option_menu = tk.OptionMenu(main_frame, self.db_fname, *options)
+        option_menu.config(font=('Arial', 9))
+        option_menu.pack()
+
+        open_btn = tk.Button(main_frame, text="Open file", font=('Arial', 10), command=self.controller.get_selected_val)
+        open_btn.pack()
+        
+
     

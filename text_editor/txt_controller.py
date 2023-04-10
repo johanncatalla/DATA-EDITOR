@@ -100,10 +100,22 @@ class Controller():
         # list of filenames from database to be displayed
         fname_lst_db = self.database.get_fnames()
         
+        self.view.open_popup(fname_lst_db)
+
+        """
         # TODO use filename from popup menu
         res = self.database.get_val_from_fname('suicide2.txt')
         self.view.txt_editor.insert('1.0', res)
-        
+        """
+
+    def get_selected_val(self):
+        fname = self.view.db_fname.get()
+        self.view.popup_root.destroy()
+        self.insert_db_txt(fname)
+
+    def insert_db_txt(self, fname):
+        res = self.database.get_val_from_fname(fname)
+        self.view.txt_editor.insert('1.0', res)
 
     def open_csv_viewer(self):
         """Open the CSV Viewer"""
