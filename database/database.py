@@ -80,6 +80,7 @@ class Database():
         cursor = cnx.cursor()
         cursor.execute("USE text_editor")
 
+        # select content using filename
         query = "SELECT t1.content FROM Text_Data t1 WHERE t1.filename = %s"
         val = fname
 
@@ -88,7 +89,9 @@ class Database():
         result = cursor.fetchone()
 
         if result:
-            return result
+            # iterate over tuple to return string
+            for content in result:
+                return content
         
         cursor.close()
         cnx.close()
