@@ -100,6 +100,7 @@ class Controller():
             )
 
     def db_read(self):
+        """triggers when opening file from database menu"""
         # list of filenames from database to be displayed
         fname_lst_db = self.database.get_fnames()
         
@@ -113,16 +114,19 @@ class Controller():
             )
         
     def get_selected_val(self):
+        """gets filename value from option menu"""
         fname = self.view.db_fname.get()
         self.view.popup_root.destroy()
         self.insert_db_txt(fname)
 
     def insert_db_txt(self, fname):
+        """inserts the content of the file using filename from database"""
         res = self.database.get_val_from_fname(fname)
         self.view.txt_editor.delete('1.0', 'end')
         self.view.txt_editor.insert('1.0', res)
 
     def del_curr_from_db(self):
+        """deletes current file from database"""
         curr_fname = self.database.current_fname
 
         if self.database.current_fname != "":
@@ -137,6 +141,7 @@ class Controller():
             messagebox.showinfo(title="Message", message=f"file does not exist in database.")
 
     def del_files_from_db(self):
+        """bulk delete files from database"""
         fnames = self.database.get_fnames()
 
 
