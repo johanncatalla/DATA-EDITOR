@@ -67,6 +67,9 @@ class Controller():
         self.database_menu.add_command(label="Save to database", command=self.db_save)
         self.database_menu.add_separator()
         self.database_menu.add_command(label="Open from database", command=self.db_read)
+        self.database_menu.add_separator()
+        self.database_menu.add_command(label="Delete current file", command=self.del_curr_from_db)
+        self.database_menu.add_command(label="Delete files from db")
 
         # add cascade and labels for menus
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
@@ -100,14 +103,15 @@ class Controller():
         # list of filenames from database to be displayed
         fname_lst_db = self.database.get_fnames()
         
-        self.view.open_popup(fname_lst_db)
-
-        """
-        # TODO use filename from popup menu
-        res = self.database.get_val_from_fname('suicide2.txt')
-        self.view.txt_editor.insert('1.0', res)
-        """
-
+        # check if database is not empty
+        if fname_lst_db:
+            self.view.open_popup(fname_lst_db)
+        else:
+            messagebox.showinfo(
+                title = "Empty",
+                message = f"Database is empty."
+            )
+        
     def get_selected_val(self):
         fname = self.view.db_fname.get()
         self.view.popup_root.destroy()
@@ -115,7 +119,26 @@ class Controller():
 
     def insert_db_txt(self, fname):
         res = self.database.get_val_from_fname(fname)
+        self.view.txt_editor.delete('1.0', 'end')
         self.view.txt_editor.insert('1.0', res)
+
+    def del_curr_from_db(self):
+        curr_fname = self.database.current_fname
+
+        if self.database.current_fname != "":
+            if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
+                # deletes current file from db
+                self.database.del_from_tbl(curr_fname)
+                self.database.current_fname = ""
+                self.new_file()
+                # Confirmation message that the file is deleted
+                messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
+        else:
+            messagebox.showinfo(title="Message", message=f"file does not exist in database.")
+
+    def del_files_from_db(self):
+        fnames = self.database.get_fnames()
+
 
     def open_csv_viewer(self):
         """Open the CSV Viewer"""

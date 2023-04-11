@@ -149,6 +149,5 @@ class ViewPanel():
 
         open_btn = tk.Button(main_frame, text="Open file", font=('Arial', 10), command=self.controller.get_selected_val)
         open_btn.pack()
-        
 
     
