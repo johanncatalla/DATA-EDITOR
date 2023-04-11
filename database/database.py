@@ -1,6 +1,8 @@
 import mysql.connector
 
 class Database():
+    def __init__(self):
+        self.current_fname = ""
 
     def create_database(self):
         """creates database and table"""
@@ -56,12 +58,11 @@ class Database():
         results = cursor.fetchall()
         values = [row[0] for row in results]
 
+        if values:
+            return values
+        
         cursor.close()
         cnx.close()
-
-        return values
-    
-    # TODO open file
 
     def get_val_from_fname(self, fname) -> str:
         """Get content of filename in database
@@ -82,9 +83,9 @@ class Database():
 
         # select content using filename
         query = "SELECT t1.content FROM Text_Data t1 WHERE t1.filename = %s"
-        val = fname
+        self.current_fname = fname
 
-        cursor.execute(query, (val,))
+        cursor.execute(query, (fname,))
 
         result = cursor.fetchone()
 
@@ -96,6 +97,23 @@ class Database():
         cursor.close()
         cnx.close()
 
+    def del_from_tbl(self, fname):
+        """Delete column using filename"""
+        cnx = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="password"
+        )
+        cursor = cnx.cursor()
+        cursor.execute("USE text_editor")
+        
+        query = "DELETE FROM Text_Data WHERE filename = %s"
+        cursor.execute(query, (fname,))
+
+        cnx.commit()
+
+        cursor.close()
+        cnx.close()
 
 if __name__ == "__main__":
     db = Database()
