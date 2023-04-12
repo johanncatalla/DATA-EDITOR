@@ -69,8 +69,7 @@ class Controller():
         self.database_menu.add_command(label="Open from database", command=self.db_read)
         self.database_menu.add_separator()
         self.database_menu.add_command(label="Delete current file", command=self.del_curr_from_db)
-        self.database_menu.add_command(label="Delete files from db")
-
+      
         # add cascade and labels for menus
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.menu_bar.add_cascade(label="Actions", menu=self.action_menu)
@@ -93,6 +92,8 @@ class Controller():
         current_content = self.view.txt_editor.get('1.0', tk.END)
 
         self.database.save_to_db(current_fname, current_content)
+
+        self.database.current_fname = current_fname
 
         messagebox.showinfo(
                 title = "Saved Successfully!",
@@ -139,11 +140,6 @@ class Controller():
                 messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
         else:
             messagebox.showinfo(title="Message", message=f"file does not exist in database.")
-
-    def del_files_from_db(self):
-        """bulk delete files from database"""
-        fnames = self.database.get_fnames()
-
 
     def open_csv_viewer(self):
         """Open the CSV Viewer"""
