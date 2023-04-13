@@ -23,9 +23,6 @@ class Controller():
         # view object
         self.view = ViewPanel(self.root, self) 
 
-        self.database = Database()
-        self.database.create_database()
-
         # flag to check if a file is opened
         self.open_status_name = False
 
@@ -76,6 +73,18 @@ class Controller():
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
         self.menu_bar.add_cascade(label="Database", menu=self.database_menu)
         
+        # database property
+        self.database = Database()
+
+        # flag to check if connected to db
+        self.cnx = self.database.connect()
+
+        # create database if there is connection
+        if self.cnx:
+            self.database.create_database()
+        else:
+            messagebox.showinfo(title="Message", message=f"Error connecting to database. \nPlease check your MySQL connection.")
+
         # adds a protocol when closing tab to trigger yes or no prompt
         self.root.protocol(
             "WM_DELETE_WINDOW",
@@ -86,39 +95,53 @@ class Controller():
         """runs the program"""
         self.root.mainloop()
 
+    def cnx_error_msg(self):
+        messagebox.showinfo(title="Message", message=f"Not connected to database.")
+
     def db_save(self):
         """save to database"""
-        current_fname = self.root.title()
-        current_content = self.view.txt_editor.get('1.0', tk.END)
+        if self.cnx:
+            # gets current filename and content
+            current_fname = self.root.title()
+            current_content = self.view.txt_editor.get('1.0', tk.END)
+            
+            # save to database
+            self.database.save_to_db(current_fname, current_content)
 
-        self.database.save_to_db(current_fname, current_content)
+            self.database.current_fname = current_fname
 
-        self.database.current_fname = current_fname
-
-        messagebox.showinfo(
-                title = "Saved Successfully!",
-                message = f"Saved {current_fname} to Database 'Text Editor'."
-            )
+            messagebox.showinfo(
+                    title = "Saved Successfully!",
+                    message = f"Saved {current_fname} to Database 'Text Editor'."
+                )
+        else:
+            self.cnx_error_msg()
 
     def db_read(self):
         """triggers when opening file from database menu"""
-        # list of filenames from database to be displayed
-        fname_lst_db = self.database.get_fnames()
-        
-        # check if database is not empty
-        if fname_lst_db:
-            self.view.open_popup(fname_lst_db)
+        if self.cnx:
+            # list of filenames from database to be displayed
+            fname_lst_db = self.database.get_fnames()
+            
+            # check if database is not empty
+            if fname_lst_db:
+                self.view.open_popup(fname_lst_db)
+            else:
+                messagebox.showinfo(
+                    title = "Empty",
+                    message = f"Database is empty."
+                )
         else:
-            messagebox.showinfo(
-                title = "Empty",
-                message = f"Database is empty."
-            )
+            self.cnx_error_msg()
         
-    def get_selected_val(self):
+    def get_selected_val(self): # button command // views
         """gets filename value from option menu"""
-        fname = self.view.db_fname.get()
-        self.view.popup_root.destroy()
-        self.insert_db_txt(fname)
+        if self.cnx:
+            fname = self.view.db_fname.get()
+            self.view.popup_root.destroy()
+            self.insert_db_txt(fname)
+        else:
+            self.cnx_error_msg()
 
     def insert_db_txt(self, fname):
         """inserts the content of the file using filename from database"""
@@ -130,16 +153,19 @@ class Controller():
         """deletes current file from database"""
         curr_fname = self.database.current_fname
 
-        if self.database.current_fname != "":
-            if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
-                # deletes current file from db
-                self.database.del_from_tbl(curr_fname)
-                self.database.current_fname = ""
-                self.new_file()
-                # Confirmation message that the file is deleted
-                messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
+        if self.cnx:
+            if self.database.current_fname != "":
+                if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
+                    # deletes current file from db
+                    self.database.del_from_tbl(curr_fname)
+                    self.database.current_fname = ""
+                    self.new_file()
+                    # Confirmation message that the file is deleted
+                    messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
+            else:
+                messagebox.showinfo(title="Message", message=f"file does not exist in database.")
         else:
-            messagebox.showinfo(title="Message", message=f"file does not exist in database.")
+            self.cnx_error_msg()
 
     def open_csv_viewer(self):
         """Open the CSV Viewer"""
