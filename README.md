@@ -1,4 +1,4 @@
-# DATA-PROJECT-v1.0.1
+# DATA-EDITOR-v1.0.1
 
 Editable cells, case-insensitive search, and CRUD functions for CSV Editor
 
