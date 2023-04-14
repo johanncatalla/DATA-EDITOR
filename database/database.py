@@ -124,8 +124,3 @@ class Database():
             cnx.close()
         else:
             pass
-
-if __name__ == "__main__":
-    db = Database()
-    db.create_database()
-    db.save_to_db("test_filename", "test_content")
