@@ -398,4 +398,3 @@ class CSV_Controller(TkinterDnD.Tk):
     def run(self):
         """runs the program"""
         self.mainloop()
-        
