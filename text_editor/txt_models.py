@@ -94,6 +94,3 @@ class Model():
         lst_searches = pattern.findall(clean_editor)
 
         return lst_searches
-    
-    
-    

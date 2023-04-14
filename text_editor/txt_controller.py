@@ -23,6 +23,19 @@ class Controller():
         # view object
         self.view = ViewPanel(self.root, self) 
 
+        # database property
+        self.database = Database()
+
+        # flag to check if connected to db
+        self.cnx = self.database.connect()
+
+        # create database if there is connection
+        if self.cnx:
+            self.database.create_database()
+        else:
+            messagebox.showinfo(title="Message", message=f"Error connecting to database. \nPlease check your MySQL connection.")
+            self.view.status_bar.config(text="Error: Not connected to Database       ")      
+
         # flag to check if a file is opened
         self.open_status_name = False
 
@@ -58,14 +71,32 @@ class Controller():
         self.edit_menu.add_command(label="Copy", command=lambda: self.copy_text(False))
         self.edit_menu.add_separator()
         self.edit_menu.add_command(label="Paste", command=lambda: self.paste_text(False))
-        
+
         # database CRUD menu
         self.database_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.database_menu.add_command(label="Save to database", command=self.db_save)
+        state = tk.NORMAL if self.cnx else tk.DISABLED
+        self.database_menu.add_command(
+            label="Save to database", 
+            command=self.db_save_cmd,
+            state=state
+        )
+        self.database_menu.add_command(
+            label="Save to database as...", 
+            command=self.view.db_save_popup, 
+            state=state
+        )
         self.database_menu.add_separator()
-        self.database_menu.add_command(label="Open from database", command=self.db_read)
+        self.database_menu.add_command(
+            label="Open from database", 
+            command=self.db_read,
+            state=state
+        )
         self.database_menu.add_separator()
-        self.database_menu.add_command(label="Delete current file", command=self.del_curr_from_db)
+        self.database_menu.add_command(
+            label="Delete current file", 
+            command=self.del_curr_from_db,
+            state=state
+        )
       
         # add cascade and labels for menus
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
@@ -73,18 +104,6 @@ class Controller():
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
         self.menu_bar.add_cascade(label="Database", menu=self.database_menu)
         
-        # database property
-        self.database = Database()
-
-        # flag to check if connected to db
-        self.cnx = self.database.connect()
-
-        # create database if there is connection
-        if self.cnx:
-            self.database.create_database()
-        else:
-            messagebox.showinfo(title="Message", message=f"Error connecting to database. \nPlease check your MySQL connection.")
-
         # adds a protocol when closing tab to trigger yes or no prompt
         self.root.protocol(
             "WM_DELETE_WINDOW",
@@ -98,22 +117,48 @@ class Controller():
     def cnx_error_msg(self):
         messagebox.showinfo(title="Message", message=f"Not connected to database.")
 
-    def db_save(self):
+    def db_save_cmd(self):
+        self.db_save(self.root.title())
+
+    def db_save(self, fname):
         """save to database"""
+        # check if there is connection
         if self.cnx:
-            # gets current filename and content
-            current_fname = self.root.title()
-            current_content = self.view.txt_editor.get('1.0', tk.END)
-            
-            # save to database
-            self.database.save_to_db(current_fname, current_content)
+            # check if filename is empty
+            if fname != "":
+                # get content of text editor
+                current_content = self.view.txt_editor.get('1.0', tk.END)
+                    
+                # save to database
+                self.database.save_to_db(fname, current_content)
 
-            self.database.current_fname = current_fname
+                self.database.current_fname = fname
 
-            messagebox.showinfo(
+                messagebox.showinfo(
                     title = "Saved Successfully!",
-                    message = f"Saved {current_fname} to Database 'Text Editor'."
+                    message = f"Saved {fname} to Database 'Text Editor'."
                 )
+                self.root.title("DATABASE: " + fname)
+            else:
+                # save as if the filename is empty
+                self.view.db_save_popup()
+        else:
+            self.cnx_error_msg()
+        
+    def db_save_as(self):
+        """Save file to database as custom filename"""
+        # get inputted filename
+        if self.cnx:
+            fname = self.view.fname_entry.get()
+            if fname != "":
+                self.db_save(fname)
+                self.view.save_popup_root.destroy()
+                self.root.title("DATABASE: " + fname) 
+            else:
+                messagebox.showinfo(
+                        title = "Error",
+                        message = f"Invalid Filename"
+                    )
         else:
             self.cnx_error_msg()
 
@@ -149,12 +194,17 @@ class Controller():
         self.view.txt_editor.delete('1.0', 'end')
         self.view.txt_editor.insert('1.0', res)
 
+        self.root.title("DATABASE: " + fname)
+
     def del_curr_from_db(self):
         """deletes current file from database"""
         curr_fname = self.database.current_fname
-
+        # check connection
         if self.cnx:
-            if self.database.current_fname != "":
+            # get fnames from databse
+            fname_lst_db = self.database.get_fnames()
+            # check if fname is in database
+            if self.database.current_fname in fname_lst_db:
                 if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
                     # deletes current file from db
                     self.database.del_from_tbl(curr_fname)

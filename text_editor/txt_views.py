@@ -149,3 +149,19 @@ class ViewPanel():
 
         open_btn = tk.Button(main_frame, text="Open file", font=('Arial', 10), command=self.controller.get_selected_val)
         open_btn.pack()
+    
+    def db_save_popup(self):
+        self.save_popup_root = tk.Tk()
+        self.save_popup_root.geometry("150x100")
+        main_frame = tk.Frame(self.save_popup_root)
+        main_frame.pack(fill=tk.BOTH)
+
+        self.fname_entry = tk.Entry(
+            main_frame, 
+            width=30,
+            font=('Arial', 10)
+        )
+        self.fname_entry.pack()
+
+        save_btn = tk.Button(main_frame, text="Save", command=self.controller.db_save_as)
+        save_btn.pack()
