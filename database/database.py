@@ -20,7 +20,7 @@ class Database():
                 return False
             
     def create_database(self): # Create
-        """creates database and table"""
+        """Creates database and table"""
         cnx = self.connect()
 
         if cnx:
@@ -56,7 +56,7 @@ class Database():
         else:
             pass
 
-    def get_val_from_fname(self, fname) -> str: # Read
+    def get_val_from_fname(self, fname: str) -> str: # Read
         """Get content of filename in database
 
         Args:
@@ -88,8 +88,8 @@ class Database():
         else:
             pass
 
-    def save_to_db(self, filename, text): # Update
-        """saves the filename and content to database"""
+    def save_to_db(self, filename: str, text: str): # Update
+        """Saves the filename and content to database"""
         cnx = self.connect()
 
         if cnx:
@@ -108,7 +108,7 @@ class Database():
         else:
             pass
 
-    def del_from_tbl(self, fname): # Delete
+    def del_from_tbl(self, fname: str): # Delete
         """Delete column using filename"""
         cnx = self.connect()
         if cnx:
