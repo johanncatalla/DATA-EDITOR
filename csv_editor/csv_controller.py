@@ -50,7 +50,7 @@ class CSV_Controller(TkinterDnD.Tk):
 
     def open_csv_file(self):
         """Open CSV file through menu"""
-        file = fd.askopenfilensame(
+        file = fd.askopenfilename(
             initialdir="D:/Downloads/",
             title="Open File",
             filetypes=(('.csv files', '*.csv'),)
