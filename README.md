@@ -1,6 +1,14 @@
-# DATA-EDITOR-v1.0.1
+# DATA-EDITOR-v1.1.0
 
-Editable cells, case-insensitive search, and CRUD functions for CSV Editor
+Editable cells
+
+Case Insensitive Search
+
+Local CRUD for CSV Editor
+
+CRUD in MySQL database
+
+Bug fixes
 
 # PROJECT DESCRIPTION:
 
@@ -11,14 +19,6 @@ A Text Editor and CSV Viewer using Tkinter utilizing MVC architecture of the Obj
 
 # Text Editor with Search
 ![Text Editor](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/text_editor_new.png)
-
-# IMPROVEMENTS
-
-Editable cells
-
-Case Insensitive Search
-
-Bug fixes
 
 # PROPERTIES
 The search functionality of the Text Editor has the following properties:
