@@ -12,7 +12,7 @@ Bug fixes
 
 # PROJECT DESCRIPTION:
 
-A Text Editor and CSV Viewer using Tkinter utilizing MVC architecture of the Object-Oriented Programming approach. The user can search records and perform CRUD operations on both applications. 
+A Text Editor and CSV Editor using Tkinter utilizing MVC architecture of the Object-Oriented Programming approach. The user can search records and perform CRUD operations locally and on MySQL database on both applications. 
 
 # CSV Editor with Search
 ![CSV Viewer](https://github.com/johanncatalla/DATA-PROJECT/blob/main/images/csv_editor.png)
