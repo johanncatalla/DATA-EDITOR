@@ -1,15 +1,14 @@
+import os
+import pandas as pd
 import tkinter as tk
 from tkinter import ttk
+from pathlib import Path
+from tkinter import messagebox
+from tkinter import filedialog as fd
+from tkinterdnd2 import TkinterDnD
+
 from csv_editor.csv_models import ModelCSV
 from csv_editor.csv_views import CSVView
-from tkinterdnd2 import TkinterDnD
-from pathlib import Path
-from tkinter import filedialog as fd
-from tkinter import messagebox
-import pandas as pd
-import re
-import os
-
 
 class CSV_Controller(TkinterDnD.Tk):
     """Controller object for CSV editor

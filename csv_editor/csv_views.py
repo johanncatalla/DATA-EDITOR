@@ -1,8 +1,6 @@
 import tkinter as tk
-from tkinterdnd2 import DND_FILES
-import pandas as pd
-import hvplot.pandas
 from tkinter import ttk
+from tkinterdnd2 import DND_FILES
 
 class CSVView(tk.Frame):
     """View object which contains widgets for the CSV editor
@@ -81,16 +79,3 @@ class DataTable(ttk.Treeview):
         style = ttk.Style(self)
         style.theme_use("default")
         style.map("Treeview")
-
-class CanvasViz(ttk.Treeview):
-    def __init__(self, parent):
-        super().__init__(parent)
-
-class VizTable(ttk.Treeview):
-    def __init__(self,parent):
-        super().__init__(parent)
-        scroll_Y = tk.Scrollbar(self, orient="vertical", command=self.yview)
-        scroll_X = tk.Scrollbar(self, orient="horizontal", command=self.xview)
-        self.configure(yscrollcommand=scroll_Y.set, xscrollcommand=scroll_X.set)
-        scroll_Y.pack(side="right", fill="y")
-        scroll_X.pack(side="bottom", fill="x")    
