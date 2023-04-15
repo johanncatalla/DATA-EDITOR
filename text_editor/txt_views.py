@@ -151,6 +151,7 @@ class ViewPanel():
         open_btn.pack()
     
     def db_save_popup(self):
+        """popup window when saving to database as custom filename"""
         self.save_popup_root = tk.Tk()
         self.save_popup_root.geometry("150x100")
         main_frame = tk.Frame(self.save_popup_root)

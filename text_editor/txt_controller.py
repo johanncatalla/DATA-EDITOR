@@ -1,12 +1,13 @@
+import re
+import os
 import tkinter as tk
+from tkinter import messagebox
+from tkinter import filedialog as fd
+
+from database.database import Database
 from text_editor.txt_models import Model
 from text_editor.txt_views import ViewPanel
 from csv_editor.csv_controller import CSV_Controller
-from tkinter import filedialog as fd
-from tkinter import messagebox
-from database.database import Database
-import re
-import os
 
 class Controller():
     """Controller object for the text editor"""
@@ -115,9 +116,11 @@ class Controller():
         self.root.mainloop()
 
     def cnx_error_msg(self):
+        """error message when not connected to database"""
         messagebox.showinfo(title="Message", message=f"Not connected to database.")
 
     def db_save_cmd(self):
+        """database save menu command"""
         self.db_save(self.root.title())
 
     def db_save(self, fname):

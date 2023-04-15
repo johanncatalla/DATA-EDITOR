@@ -1,6 +1,5 @@
 import os
 import re
-from pathlib import Path
 
 class Model():
     """Model object which contains all methods for the text editor"""
