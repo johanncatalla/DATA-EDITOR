@@ -4,7 +4,7 @@ import re
 class Model():
     """Model object which contains all methods for the text editor"""
     def __init__(self):
-        # property that contains text from the text editor
+        # Ccontains text from the text editor
         self.text = ''
 
     def open(self, filename: str):
@@ -65,7 +65,7 @@ class Model():
         return lst_entry
     
     def search_sentence(self, text_input: str, text_entry: str, option_value: str) -> list:
-        """processes the entry text and editor text to search sentences using the keywords
+        """Processes the entry text and editor text to search sentences using the keywords
 
         Args:
             text_input (str): string in the text editor
@@ -75,16 +75,16 @@ class Model():
         Returns:
             list: list of words in the search entry
         """   
-        clean_editor = re.sub('[ \n]+', ' ', text_input) # clean text editor content to remove extra lines/spaces
-        lst_entry = self.entry_list(text_entry) # creates the list keywords
+        clean_editor = re.sub('[ \n]+', ' ', text_input) # Remove extra lines/spaces
+        lst_entry = self.entry_list(text_entry) # Creates the list keywords
         
         # Adding "|" between each keyword on list to search more than one keyword
         # Regex that allows special char/punctuations before and after keyword but disallows alphanum chars 
         keywords = r'\b[^.?!\w]*(?:' + '|'.join(lst_entry) + r')(?=[\s@*&^%$#.,;:\/\'-\?!]|$)'
 
-        # change behavior of the search based on ignore case/case sensitive option
+        # Change behavior of the search based on ignore case/case sensitive option
         if option_value == "Ignore Case":
-                # compile keyword pattern with sentence pattern to create main regex pattern 
+                # Compile keyword pattern with sentence pattern to create main regex pattern 
                 pattern = re.compile(r'\b[^.?!]*\b{0}\b[^.?!]*[ .?!]'.format(keywords), re.IGNORECASE) # Regex that formats the keywords to be in a sentence/standalone
         else:
                 pattern = re.compile(r'\b[^.?!]*\b{0}\b[^.?!]*[ .?!]'.format(keywords))

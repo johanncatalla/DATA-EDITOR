@@ -12,7 +12,7 @@ class ViewPanel():
         # Control Frame
         self.control_frame = tk.Frame(root)
         self.control_frame.place(rely=0.97, relheight=0.03, relwidth=0.7)
-        # top Text widget    
+        # Top Text widget    
         self.txt_editor = tk.Text(
             self.top_frame,
             font=("Century Gothic", 10),
@@ -22,16 +22,16 @@ class ViewPanel():
             pady=5
         )
 
-        # scrollbar
+        # Scrollbar
         self.txt_scrollbar = tk.Scrollbar(self.top_frame, command=self.txt_editor.yview) 
         self.txt_editor.config(yscrollcommand=self.txt_scrollbar.set)
 
         self.txt_scrollbar.pack(side=tk.RIGHT, fill='y') 
         self.txt_editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
     
-        # bind to keyboard which triggers function that concatenates string to the string storage 
+        # Binds to keyboard which triggers function that concatenates string to the string storage 
         self.txt_editor.bind('<KeyRelease>', self.controller.on_key_release)
-        # binds the keyboard shortcuts for the CRUD
+        # Binds the keyboard shortcuts for the CRUD
         self.txt_editor.bind("<KeyPress>", self.controller.shortcut)
 
         # Enter text label
@@ -42,7 +42,7 @@ class ViewPanel():
         )
         self.label_enter.place(relx=0.01, relheight=1)
         
-        # shortcut button for opening file
+        # Shortcut button for opening file
         self.open_button = tk.Button(
             self.control_frame,
             text="Open file",
@@ -66,7 +66,7 @@ class ViewPanel():
         )
         self.entry.place(height=24, y=2, x=60, relwidth=1, anchor=tk.NW)
 
-        # binds the entry box to enter key for searching
+        # Binds the entry box to enter key for searching
         self.entry.bind("<Return>", self.controller.on_enter_key)
 
         # Search button
@@ -91,7 +91,7 @@ class ViewPanel():
         self.option_menu.config(font=('Arial', 9))
         self.option_menu.pack(anchor=tk.NE)
 
-        # creates another text editor to display result
+        # Creates another text editor to display result
         self.display_text = tk.Text(
             self.display_frame, 
             font=("Century Gothic", 10),
@@ -105,7 +105,7 @@ class ViewPanel():
         self.display_scroll = tk.Scrollbar(self.display_frame, command=self.display_text.yview)
         self.display_text.config(yscrollcommand=self.display_scroll.set)
         
-        # packs the scrollbar and the text editor in the display frame
+        # Packs the scrollbar and the text editor in the display frame
         self.display_scroll.pack(side=tk.RIGHT, fill='y')
         self.display_text.place(y=29, relheight=1, relwidth=0.98)
 
