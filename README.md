@@ -1,5 +1,4 @@
 # DATA-EDITOR-v1.1.0
-
 * Local CRUD for CSV Editor
 * CRUD in MySQL database
 * Editable cells
