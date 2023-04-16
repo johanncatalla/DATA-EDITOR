@@ -9,6 +9,7 @@ from tkinterdnd2 import TkinterDnD
 
 from csv_editor.csv_models import ModelCSV
 from csv_editor.csv_views import CSVView
+from database.csv_database import Database
 
 class CSV_Controller(TkinterDnD.Tk):
     """Controller object for CSV editor
@@ -19,7 +20,19 @@ class CSV_Controller(TkinterDnD.Tk):
     def __init__(self):
         # Inherit from dnd2 library for drag and drop
         super().__init__()
-    
+
+        # Database reference
+        self.database = Database()
+
+        # Flag to check if connected to db
+        self.cnx = self.database.connect()
+
+        # Create database if there is connection
+        if self.cnx:
+            self.database.create_db()
+        else:
+            messagebox.showinfo(title="Message", message=f"Error connecting to database. \nPlease check your MySQL connection.")
+           
         # Menus to CSV Editor
         self.menubar_csv = tk.Menu(self)
         self.config(menu=self.menubar_csv)
@@ -32,7 +45,38 @@ class CSV_Controller(TkinterDnD.Tk):
         self.file_menu.add_command(label="Save as...", command=self.save_csv_as)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Delete", command=self.delete_csv_file)
+        
+        # Database Menu
+        self.database_menu = tk.Menu(self.menubar_csv, tearoff=0)
+        state = tk.NORMAL if self.cnx else tk.DISABLED
+        self.database_menu.add_command(
+            label="Save to database",
+            command=self.db_save, 
+            state=state
+        )
+        self.database_menu.add_command(
+            label="Save to database as...",
+            command=None, 
+            state=state
+        )
+        self.database_menu.add_command(
+            label="Save changes",
+            command=None, 
+            state=state
+        )
+        self.database_menu.add_separator()
+        self.database_menu.add_command(
+            label="Open from database", 
+            state=state
+        )
+        self.database_menu.add_separator()
+        self.database_menu.add_command(
+            label="Delete current file", 
+            state=state
+        )
+
         self.menubar_csv.add_cascade(label="File", menu=self.file_menu)
+        self.menubar_csv.add_cascade(label="Database", menu=self.database_menu)
 
         self.geometry("1280x720")
         self.title("CSV Viewer")
@@ -46,7 +90,21 @@ class CSV_Controller(TkinterDnD.Tk):
         self.open_status_name = False
 
     def run(self):
-        self.mainloop()
+        self.mainloop()   
+
+    def db_save(self):
+        if self.open_status_name:
+            # Update stored dataframe for searching; store new treeview to the 'stored_dataframe' property
+            fname = self.open_status_name
+            columns = str([self.table.heading(column)["text"] for column in self.table["columns"]])
+            rows = str([self.table.item(item)["values"] for item in self.table.get_children()])
+
+            self.database.save_to_db(fname, columns, rows)
+        else:
+            messagebox.showinfo(
+                title="Error",
+                message="No opened file"
+            )
 
     def open_csv_file(self):
         """Open CSV file through menu"""
