@@ -1,12 +1,12 @@
 # DATA-EDITOR-v1.1.0
 
-Editable cells
-
-Case Insensitive Search
-
 Local CRUD for CSV Editor
 
 CRUD in MySQL database
+
+Editable cells
+
+Case Insensitive Search
 
 Bug fixes
 
