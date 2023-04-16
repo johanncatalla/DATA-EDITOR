@@ -153,7 +153,7 @@ class ViewPanel():
     def db_save_popup(self):
         """popup window when saving to database as custom filename"""
         self.save_popup_root = tk.Tk()
-        self.save_popup_root.geometry("150x100")
+        self.save_popup_root.geometry("200x100")
         main_frame = tk.Frame(self.save_popup_root)
         main_frame.pack(fill=tk.BOTH)
 
@@ -162,7 +162,7 @@ class ViewPanel():
             width=30,
             font=('Arial', 10)
         )
-        self.fname_entry.pack()
+        self.fname_entry.pack(fill=tk.BOTH)
 
-        save_btn = tk.Button(main_frame, text="Save", command=self.controller.db_save_as)
+        save_btn = tk.Button(main_frame, text="Enter filename", command=self.controller.db_save_as)
         save_btn.pack()

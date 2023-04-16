@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog as fd
 
-from database.database import Database
+from database.txt_database import Database
 from text_editor.txt_models import Model
 from text_editor.txt_views import ViewPanel
 from csv_editor.csv_controller import CSV_Controller
@@ -76,7 +76,7 @@ class Controller():
         state = tk.NORMAL if self.cnx else tk.DISABLED
         self.database_menu.add_command(
             label="Save to database", 
-            command=self.db_save_cmd,
+            command=self.db_save_cmd, 
             state=state
         )
         self.database_menu.add_command(
@@ -84,9 +84,14 @@ class Controller():
             command=self.view.db_save_popup, 
             state=state
         )
+        self.database_menu.add_command(
+            label="Save changes", 
+            command=self.db_save_changes_cmd,
+            state=state
+        )
         self.database_menu.add_separator()
         self.database_menu.add_command(
-            label="Open from database", 
+            label="Open", 
             command=self.db_read,
             state=state
         )
@@ -118,7 +123,16 @@ class Controller():
         messagebox.showinfo(title="Message", message=f"Not connected to database.")
 
     def db_save_cmd(self):
-        self.db_save(self.root.title())
+        fnames = self.database.get_fnames()
+        title = self.root.title().replace("DATABASE: ", "")
+
+        if not bool(fnames):
+            self.db_save(title)
+        else:
+            if title not in fnames:
+                self.db_save(title)
+            else:
+                self.view.db_save_popup()       
 
     def db_save(self, fname):
         """Save to database"""
@@ -153,14 +167,27 @@ class Controller():
             if fname != "":
                 self.db_save(fname)
                 self.view.save_popup_root.destroy()
-                self.root.title("DATABASE: " + fname) 
             else:
                 messagebox.showinfo(
                         title = "Error",
                         message = f"Invalid Filename"
-                    )
+                )
         else:
             self.cnx_error_msg()
+
+    def db_save_changes_cmd(self):
+        if self.database.current_fname:
+            self.db_save_changes()
+        else:
+            messagebox.showinfo(
+                    title = "Error",
+                    message = f"Cannot save file: file does not exist in database"
+            )
+
+    def db_save_changes(self):
+        content = self.view.txt_editor.get("1.0", tk.END)
+        filename = self.database.current_fname
+        self.database.update_txt(filename, content)
 
     def db_read(self):
         """Triggers when opening file from database menu"""
@@ -194,26 +221,34 @@ class Controller():
         self.view.txt_editor.delete('1.0', 'end')
         self.view.txt_editor.insert('1.0', res)
 
+        # Update dataframe flag
+        self.database.current_fname = fname
+
         self.root.title("DATABASE: " + fname)
 
     def del_curr_from_db(self):
         """Deletes current file from database"""
-        curr_fname = self.database.current_fname
         # Check connection
         if self.cnx:
-            # Get fnames from databse
-            fname_lst_db = self.database.get_fnames()
-            # Check if fname is in database
-            if self.database.current_fname in fname_lst_db:
-                if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
-                    # Deletes current file from db
-                    self.database.del_from_tbl(curr_fname)
-                    self.database.current_fname = ""
-                    self.new_file()
-                    # Confirmation message that the file is deleted
-                    messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
+            curr_fname = self.database.current_fname
+            fnames = self.database.get_fnames()
+            if bool(fnames):
+                # Check if there is an opened file
+                if curr_fname:
+                    if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
+                        # Deletes current file from db
+                        self.database.del_from_tbl(curr_fname)
+                        self.database.current_fname = ""
+                        self.new_file()
+                        # Confirmation message that the file is deleted
+                        messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
+                else:
+                    messagebox.showinfo(title="Message", message=f"File does not exist in database.")
             else:
-                messagebox.showinfo(title="Message", message=f"file does not exist in database.")
+                messagebox.showinfo(
+                    title = "Empty",
+                    message = f"Database is empty."
+                )
         else:
             self.cnx_error_msg()
 
@@ -327,7 +362,9 @@ class Controller():
         if f:
             # Update flag to current filename
             self.open_status_name = f
-            
+            # Reset dataframe flag
+            self.database.current_fname = False
+
             # Update status bars
             extract_filename = re.search(r"[^/\\]+$", self.open_status_name).group(0)
             self.view.status_bar.config(text=f"{f}       ")            
@@ -347,6 +384,9 @@ class Controller():
 
         # Reset Flag
         self.open_status_name = False   
+
+        # Reset dataframe flag
+        self.database.current_fname = False
 
     def save_file(self):
         # Checks the text editor flag if the file exists in the directory
