@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog as fd
 
-from database.txt_database import Database
+from database.txt_database import TXTdatabase
 from text_editor.txt_models import Model
 from text_editor.txt_views import ViewPanel
 from csv_editor.csv_controller import CSV_Controller
@@ -24,7 +24,7 @@ class Controller():
         self.view = ViewPanel(self.root, self) 
 
         # Database reference
-        self.database = Database()
+        self.database = TXTdatabase()
 
         # Flag to check if connected to db
         self.cnx = self.database.connect()
