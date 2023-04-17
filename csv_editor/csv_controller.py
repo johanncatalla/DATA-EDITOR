@@ -21,9 +21,17 @@ class CSV_Controller(TkinterDnD.Tk):
         # Inherit from dnd2 library for drag and drop
         super().__init__()
 
+        self.geometry("1280x720")
+        self.title("CSV Viewer")
+
+        # Assign properties for Views and Models
+        self.view = CSVView(self, self)
+        self.model = ModelCSV()
+        self.table = self.view.data_table
+
         # Database reference
         self.database = Database()
-
+        
         # Flag to check if connected to db
         self.cnx = self.database.connect()
 
@@ -32,7 +40,10 @@ class CSV_Controller(TkinterDnD.Tk):
             self.database.create_db()
         else:
             messagebox.showinfo(title="Message", message=f"Error connecting to database. \nPlease check your MySQL connection.")
-           
+        
+        # flag to check if a file is opened
+        self.open_status_name = False
+
         # Menus to CSV Editor
         self.menubar_csv = tk.Menu(self)
         self.config(menu=self.menubar_csv)
@@ -51,60 +62,189 @@ class CSV_Controller(TkinterDnD.Tk):
         state = tk.NORMAL if self.cnx else tk.DISABLED
         self.database_menu.add_command(
             label="Save to database",
-            command=self.db_save, 
+            command=self.db_save_cmd, 
             state=state
         )
         self.database_menu.add_command(
             label="Save to database as...",
-            command=None, 
+            command=self.db_save_as_cmd, 
             state=state
         )
         self.database_menu.add_command(
             label="Save changes",
-            command=None, 
+            command=self.db_save_changes_cmd,
             state=state
         )
         self.database_menu.add_separator()
         self.database_menu.add_command(
-            label="Open from database", 
+            label="Open from database",
+            command=self.db_read, 
             state=state
         )
         self.database_menu.add_separator()
         self.database_menu.add_command(
-            label="Delete current file", 
+            label="Delete current file",
+            command=self.del_curr_from_db, 
             state=state
         )
 
         self.menubar_csv.add_cascade(label="File", menu=self.file_menu)
         self.menubar_csv.add_cascade(label="Database", menu=self.database_menu)
 
-        self.geometry("1280x720")
-        self.title("CSV Viewer")
-
-        # Assign properties for Views and Models
-        self.view = CSVView(self, self)
-        self.model = ModelCSV()
-        self.table = self.view.data_table
-
-        # flag to check if a file is opened
-        self.open_status_name = False
-
     def run(self):
         self.mainloop()   
 
-    def db_save(self):
-        if self.open_status_name:
+    def cnx_error_msg(self):
+        """Error message when not connected to database"""
+        messagebox.showinfo(title="Message", message=f"Not connected to database.")
+    
+    def no_opened_file(self):
+        messagebox.showinfo(title="Message", message=f"No opened file")
+
+    def db_save_cmd(self):
+        if self.cnx:
+            if self.open_status_name:
+                fnames = self.database.get_fnames()
+                file_path = self.open_status_name
+                path_object = Path(file_path)
+                file_name = path_object.name.replace(".csv", "") 
+
+                if not bool(fnames):
+                    self.db_save(file_name)
+                else:
+                    if file_name not in fnames:
+                        self.db_save(file_name)
+                    else:
+                        self.view.db_save_popup()
+            else:
+                self.no_opened_file()
+        else:
+            self.cnx_error_msg()
+
+    def db_save(self, fname):
+        if self.cnx:
             # Update stored dataframe for searching; store new treeview to the 'stored_dataframe' property
-            fname = self.open_status_name
             columns = str([self.table.heading(column)["text"] for column in self.table["columns"]])
             rows = str([self.table.item(item)["values"] for item in self.table.get_children()])
-
             self.database.save_to_db(fname, columns, rows)
+            self.database.current_fname = fname
+            self.title("DATABASE: " + fname)
+
+            messagebox.showinfo(
+                    title = "Saved Successfully!",
+                    message = f"Saved {fname} to Database 'CSV Editor'."
+                )
+        else:
+            self.cnx_error_msg()
+
+    def db_save_as_cmd(self):
+        if self.open_status_name:
+            self.view.db_save_popup()
+        else:
+            self.no_opened_file()
+
+    def db_save_as(self):
+        """Save file to database as custom filename"""
+        # Get inputted filename
+        if self.cnx:
+            fname = self.view.fname_entry.get()
+            if fname != "":
+                self.db_save(fname)
+                self.view.save_popup_root.destroy()
+            else:
+                messagebox.showinfo(
+                        title = "Error",
+                        message = f"Invalid Filename"
+                )
+        else:
+            self.cnx_error_msg()
+
+    def db_save_changes_cmd(self):
+        if self.database.current_fname:
+            self.db_save_changes()
         else:
             messagebox.showinfo(
-                title="Error",
-                message="No opened file"
+                    title = "Error",
+                    message = f"Cannot save file: file does not exist in database"
             )
+    
+    def db_save_changes(self):
+        columns = str([self.table.heading(column)["text"] for column in self.table["columns"]])
+        rows = str([self.table.item(item)["values"] for item in self.table.get_children()])
+        
+        fname = self.database.current_fname
+        self.database.update_csv(fname, columns, rows)
+        messagebox.showinfo(
+                    title = "Message",
+                    message = f"Saved Changes to {fname}"
+            )
+    
+    def db_read(self):
+        """Triggers when opening file from database menu"""
+        if self.cnx:
+            # List of filenames from database to be displayed
+            fname_lst_db = self.database.get_fnames()
+            
+            # Check if database is not empty
+            if fname_lst_db:
+                self.view.open_popup(fname_lst_db)
+            else:
+                messagebox.showinfo(
+                    title = "Empty",
+                    message = f"Database is empty."
+                )
+        else:
+            self.cnx_error_msg()
+
+    def get_selected_val(self): # button command // views
+        """Gets filename value from option menu"""
+        if self.cnx:
+            fname = self.view.db_fname.get()
+            self.view.popup_root.destroy()
+            self.insert_db_csv(fname)
+        else:
+            self.cnx_error_msg()
+        
+    def insert_db_csv(self, fname):
+        """Inserts the content of the csv using filename from database"""
+        res = self.database.get_val_from_fname(fname)
+        col_content = eval(res[0])
+        row_content = eval(res[1])
+        df = pd.DataFrame(row_content, columns=col_content)
+        self.set_datatable(df)
+
+        # Update dataframe flag
+        self.database.current_fname = fname
+        self.title("DATABASE: " + fname)
+    
+    def del_curr_from_db(self):
+        """Deletes current file from database"""
+        # Check connection
+        if self.cnx:
+            curr_fname = self.database.current_fname
+            fnames = self.database.get_fnames()
+            if bool(fnames):
+                # Check if there is an opened file
+                if curr_fname:
+                    if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
+                        # Deletes current file from db
+                        self.database.del_from_tbl(curr_fname)
+                        self.database.current_fname = False
+                        self.open_status_name = False
+                        self.model.stored_dataframe = pd.DataFrame()
+                        self.reset_table()
+                        self.title("CSV Editor")
+                        # Confirmation message that the file is deleted
+                        messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
+                else:
+                    messagebox.showinfo(title="Message", message=f"File does not exist in database.")
+            else:
+                messagebox.showinfo(
+                    title = "Empty",
+                    message = f"Database is empty."
+                )
+        else:
+            self.cnx_error_msg()
 
     def open_csv_file(self):
         """Open CSV file through menu"""
@@ -119,8 +259,8 @@ class CSV_Controller(TkinterDnD.Tk):
 
         if file:
             if file.endswith(".csv"):
-                # Update flag to current filename
-                self.open_status_name = file
+                self.title("CSV Editor")
+                self.database.current_fname = False
                 # Create object from filepath to return the name of the file
                 path_object = Path(file)
                 file_name = path_object.name 
@@ -146,14 +286,42 @@ class CSV_Controller(TkinterDnD.Tk):
             for row in contents:
                 csv_writer.writerow(row)
         else:
-            self.save_csv_as()
+            self.no_opened_file()
+
+    def save_csv_as(self):
+        if self.open_status_name:
+            # Save CSV as if file does not exist
+            csv_file = fd.asksaveasfilename(
+                defaultextension=".*",
+                initialdir="D:/Downloads",
+                title="Save File as",
+                filetypes=(('.csv files', '*.csv'),)
+            )
+            # Check if user selected filename
+            if csv_file:
+                # Create csv writer using csv write from models
+                csv_writer = self.model.save_csv(csv_file)
+                # List of headings of the treeview
+                header = [self.table.heading(column)["text"] for column in self.table["columns"]]
+
+                csv_writer.writerow(header)
+
+                # List treeview values
+                contents = [self.table.item(item)["values"] for item in self.table.get_children()]
+                
+                for row in contents:
+                    csv_writer.writerow(row)
+
+            # Update flag to current filename
+            self.open_status_name = csv_file
+        else:
+            self.no_opened_file()
 
     def delete_csv_file(self):
         # Triggers by delete option in menu and triggers messagebox confirmation
         if self.open_status_name:
             if os.path.exists(self.open_status_name):
                 self.on_deletion()
-
         else:
             messagebox.showinfo(
                 title="File not found",
@@ -279,32 +447,6 @@ class CSV_Controller(TkinterDnD.Tk):
 
         event.widget.destroy()
    
-    def save_csv_as(self):
-        # Save CSV as if file does not exist
-        csv_file = fd.asksaveasfilename(
-            defaultextension=".*",
-            initialdir="D:/Downloads",
-            title="Save File as",
-            filetypes=(('.csv files', '*.csv'),)
-        )
-        # Check if user selected filename
-        if csv_file:
-            # Create csv writer using csv write from models
-            csv_writer = self.model.save_csv(csv_file)
-            # List of headings of the treeview
-            header = [self.table.heading(column)["text"] for column in self.table["columns"]]
-
-            csv_writer.writerow(header)
-
-            # List treeview values
-            contents = [self.table.item(item)["values"] for item in self.table.get_children()]
-            
-            for row in contents:
-                csv_writer.writerow(row)
-
-        # Update flag to current filename
-        self.open_status_name = csv_file
-
     def set_datatable(self, dataframe):
         """Copies the string version of the original dataframe to the spare dataframe for string query
         then draws the original dataframe to the treeview
