@@ -3,7 +3,7 @@ from mysql.connector import errorcode
 
 class Database():
     def __init__(self):
-        self.current_fname = ""
+        self.current_fname = False
     
     def connect(self):
         try:
@@ -19,16 +19,59 @@ class Database():
             else:
                 return False
     
-    def table_exists(self, table_name):
+    def get_fnames(self) -> list:
+        """Get 'filenames' from database"""
         cnx = self.connect()
-        
+
         if cnx:
             cursor = cnx.cursor()
-            cursor.execute(f"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '{table_name}'")
-            return cursor.fetchone()[0] == 1
-        
-        cursor.close()
-        cnx.close()
+            cursor.execute("USE data_editor")
+
+            # create list of filenames to access specific file
+            cursor.execute("SELECT filename FROM CSV_Data")
+            results = cursor.fetchall()
+            values = [row[0] for row in results]
+
+            if values:
+                return values
+            
+            cursor.close()
+            cnx.close()
+        else:
+            pass
+
+    def get_val_from_fname(self, fname):
+        """Get content of filename in database
+
+        Args:
+            fname (str): File name from option menu
+
+        Returns:
+            str: content of the file
+        """
+        cnx = self.connect()
+        if cnx:
+            cursor = cnx.cursor()
+            cursor.execute("USE data_editor")
+
+            # select content using filename
+            query = "SELECT col_content, row_content FROM CSV_Data WHERE filename = %s"
+            self.current_fname = fname
+
+            cursor.execute(query, (fname,))
+
+            result = cursor.fetchall()
+            col_row = []
+            if result:
+                for content in result:
+                    for res in content:
+                        col_row.append(res)
+                return col_row
+            
+            cursor.close()
+            cnx.close()
+        else:
+            pass
             
     def create_db(self): # Create
         """Creates database and table"""
@@ -62,4 +105,39 @@ class Database():
             cnx.close()
         else:
             pass
+    
+    def update_csv(self, fname, columns, rows):
+        cnx = self.connect()
         
+        if cnx:
+            cursor = cnx.cursor()
+            cursor.execute("USE data_editor")
+            
+            query = "UPDATE CSV_Data SET col_content = %s, row_content = %s WHERE filename = %s"
+            values = (columns, rows, fname)
+
+            cursor.execute(query, values)
+
+            cnx.commit()
+
+            cursor.close()
+            cnx.close()
+        else:
+            pass
+
+    def del_from_tbl(self, fname: str): # Delete
+        """Delete column using filename"""
+        cnx = self.connect()
+        if cnx:
+            cursor = cnx.cursor()
+            cursor.execute("USE data_editor")
+            
+            query = "DELETE FROM CSV_Data WHERE filename = %s"
+            cursor.execute(query, (fname,))
+
+            cnx.commit()
+
+            cursor.close()
+            cnx.close()
+        else:
+            pass
