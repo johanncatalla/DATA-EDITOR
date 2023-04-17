@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import errorcode
 
-class Database():
+class TXTdatabase():
     def __init__(self):
         self.current_fname = False
 

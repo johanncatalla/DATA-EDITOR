@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import errorcode
 
-class Database():
+class CSVdatabase():
     def __init__(self):
         self.current_fname = False
     
@@ -19,6 +19,22 @@ class Database():
             else:
                 return False
     
+    def create_db(self): # Create
+        """Creates database and table"""
+        cnx = self.connect()
+
+        if cnx:
+            cursor = cnx.cursor()
+            cursor.execute("CREATE DATABASE IF NOT EXISTS data_editor")
+            cursor.execute("USE data_editor")
+            cursor.execute("CREATE TABLE IF NOT EXISTS CSV_Data(filename varchar(255), col_content text(65535), row_content text(65535))")
+            
+            cursor.close()
+        else:
+            pass
+
+        cnx.close()   
+
     def get_fnames(self) -> list:
         """Get 'filenames' from database"""
         cnx = self.connect()
@@ -73,22 +89,6 @@ class Database():
         else:
             pass
             
-    def create_db(self): # Create
-        """Creates database and table"""
-        cnx = self.connect()
-
-        if cnx:
-            cursor = cnx.cursor()
-            cursor.execute("CREATE DATABASE IF NOT EXISTS data_editor")
-            cursor.execute("USE data_editor")
-            cursor.execute("CREATE TABLE IF NOT EXISTS CSV_Data(filename varchar(255), col_content text(65535), row_content text(65535))")
-            
-            cursor.close()
-        else:
-            pass
-
-        cnx.close()   
-    
     def save_to_db(self, filename, columns, rows):
         cnx = self.connect()
 
