@@ -44,6 +44,47 @@ class CSVView(tk.Frame):
         # Option menu for the search bar // change behavior of search
         self.option_menu = tk.OptionMenu(parent, self.search_val, *self.search_options)
         self.option_menu.place(width=190, relx=1, height=24, anchor=tk.NE)
+    
+    def db_save_popup(self):
+        """popup window when saving to database as custom filename"""
+        self.save_popup_root = tk.Tk()
+        self.save_popup_root.geometry("200x100")
+        main_frame = tk.Frame(self.save_popup_root)
+        main_frame.pack(fill=tk.BOTH)
+
+        self.fname_entry = tk.Entry(
+            main_frame, 
+            width=30,
+            font=('Arial', 10)
+        )
+        self.fname_entry.pack(fill=tk.BOTH)
+
+        save_btn = tk.Button(main_frame, text="Enter filename", command=self.controller.db_save_as)
+        save_btn.pack()
+    
+    def open_popup(self, options):
+        """popup window to select filename to be opened from database
+
+        Args:
+            options (list): list of filenames in database
+        """
+        self.popup_root = tk.Tk()
+        self.popup_root.geometry("150x100")
+        main_frame = tk.Frame(self.popup_root)
+        main_frame.pack(fill=tk.BOTH)
+
+        # Stringvar to interact with the option menu
+        self.db_fname = tk.StringVar(main_frame)
+        self.db_fname.set(options[0]) 
+
+        # Option menu containing filenames
+        option_menu = tk.OptionMenu(main_frame, self.db_fname, *options)
+        option_menu.config(font=('Arial', 9))
+        option_menu.pack()
+
+        open_btn = tk.Button(main_frame, text="Open file", font=('Arial', 10), command=self.controller.get_selected_val)
+        open_btn.pack()
+
 
 class DataTable(ttk.Treeview):
     """Treeview object to display dataframe
