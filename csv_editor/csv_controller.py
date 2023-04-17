@@ -9,7 +9,7 @@ from tkinterdnd2 import TkinterDnD
 
 from csv_editor.csv_models import ModelCSV
 from csv_editor.csv_views import CSVView
-from database.csv_database import Database
+from database.csv_database import CSVdatabase
 
 class CSV_Controller(TkinterDnD.Tk):
     """Controller object for CSV editor
@@ -30,7 +30,7 @@ class CSV_Controller(TkinterDnD.Tk):
         self.table = self.view.data_table
 
         # Database reference
-        self.database = Database()
+        self.database = CSVdatabase()
         
         # Flag to check if connected to db
         self.cnx = self.database.connect()
