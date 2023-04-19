@@ -102,16 +102,24 @@ class CSV_Controller(TkinterDnD.Tk):
         messagebox.showinfo(title="Message", message=f"No opened file")
 
     def db_save_cmd(self):
+        # Database: save command for menu
         if self.cnx:
-            if self.open_status_name:
+            # Check flag of local and current filename to save
+            if self.open_status_name or self.database.current_fname:
                 fnames = self.database.get_fnames()
-                file_path = self.open_status_name
-                path_object = Path(file_path)
-                file_name = path_object.name.replace(".csv", "") 
-
+                # If local filename is active, sets it as file to save
+                if self.open_status_name:
+                    file_path = self.open_status_name
+                    path_object = Path(file_path)
+                    file_name = path_object.name.replace(".csv", "") 
+                # If database filename is active, sets it as file to save
+                elif self.database.current_fname:
+                    file_name = self.database.current_fname
+                # Checks if the list of fname is empty
                 if not bool(fnames):
                     self.db_save(file_name)
                 else:
+                    # Checks if filename already exists
                     if file_name not in fnames:
                         self.db_save(file_name)
                     else:
@@ -122,13 +130,12 @@ class CSV_Controller(TkinterDnD.Tk):
             self.cnx_error_msg()
 
     def db_save(self, fname):
+        # Saves the file to database
         if self.cnx:
-            # Update stored dataframe for searching; store new treeview to the 'stored_dataframe' property
+            # Get columns and rows from treeview to be stored in database 
             columns = str([self.table.heading(column)["text"] for column in self.table["columns"]])
             rows = str([self.table.item(item)["values"] for item in self.table.get_children()])
             self.database.save_to_db(fname, columns, rows)
-            self.database.current_fname = fname
-            self.title("DATABASE: " + fname)
 
             messagebox.showinfo(
                     title = "Saved Successfully!",
@@ -138,7 +145,9 @@ class CSV_Controller(TkinterDnD.Tk):
             self.cnx_error_msg()
 
     def db_save_as_cmd(self):
-        if self.open_status_name:
+        # Database: save as command for menu
+        # Check if a file is opened in either local or mysql directory
+        if self.open_status_name or self.database.current_fname:
             self.view.db_save_popup()
         else:
             self.no_opened_file()
@@ -160,6 +169,7 @@ class CSV_Controller(TkinterDnD.Tk):
             self.cnx_error_msg()
 
     def db_save_changes_cmd(self):
+        # Database: save changes command for menu
         if self.database.current_fname:
             self.db_save_changes()
         else:
@@ -169,6 +179,7 @@ class CSV_Controller(TkinterDnD.Tk):
             )
     
     def db_save_changes(self):
+        # Updates the changes to the file on database
         columns = str([self.table.heading(column)["text"] for column in self.table["columns"]])
         rows = str([self.table.item(item)["values"] for item in self.table.get_children()])
         
@@ -176,9 +187,9 @@ class CSV_Controller(TkinterDnD.Tk):
         self.database.update_csv(fname, columns, rows)
         messagebox.showinfo(
                     title = "Message",
-                    message = f"Saved Changes to {fname}"
+                    message = f"Saved changes to {fname}"
             )
-    
+        
     def db_read(self):
         """Triggers when opening file from database menu"""
         if self.cnx:
@@ -196,7 +207,7 @@ class CSV_Controller(TkinterDnD.Tk):
         else:
             self.cnx_error_msg()
 
-    def get_selected_val(self): # button command // views
+    def get_selected_val(self): # Button command // views
         """Gets filename value from option menu"""
         if self.cnx:
             fname = self.view.db_fname.get()
@@ -214,6 +225,7 @@ class CSV_Controller(TkinterDnD.Tk):
         self.set_datatable(df)
 
         # Update dataframe flag
+        self.open_status_name = False
         self.database.current_fname = fname
         self.title("DATABASE: " + fname)
     
@@ -259,8 +271,6 @@ class CSV_Controller(TkinterDnD.Tk):
 
         if file:
             if file.endswith(".csv"):
-                self.title("CSV Editor")
-                self.database.current_fname = False
                 # Create object from filepath to return the name of the file
                 path_object = Path(file)
                 file_name = path_object.name 
@@ -273,23 +283,26 @@ class CSV_Controller(TkinterDnD.Tk):
 
     def save_csv_file(self):
         # Save/Write to the file
-        if self.open_status_name:
-            csv_writer = self.model.save_csv(self.open_status_name)
-            # List of headings of the treeview
-            header = [self.table.heading(column)["text"] for column in self.table["columns"]]
-
-            csv_writer.writerow(header)
-
-            # List treeview values
-            contents = [self.table.item(item)["values"] for item in self.table.get_children()]
-            
-            for row in contents:
-                csv_writer.writerow(row)
+        print(self.database.current_fname)
+        if self.open_status_name or self.database.current_fname:
+            if self.open_status_name:
+                print(self.open_status_name)
+                csv_writer = self.model.save_csv(self.open_status_name)
+                # List of headings of the treeview
+                header = [self.table.heading(column)["text"] for column in self.table["columns"]]
+                csv_writer.writerow(header)
+                # List treeview values
+                contents = [self.table.item(item)["values"] for item in self.table.get_children()]
+                
+                for row in contents:
+                    csv_writer.writerow(row)
+            elif self.database.current_fname:
+                self.save_csv_as()
         else:
             self.no_opened_file()
 
     def save_csv_as(self):
-        if self.open_status_name:
+        if self.open_status_name or self.database.current_fname:
             # Save CSV as if file does not exist
             csv_file = fd.asksaveasfilename(
                 defaultextension=".*",
@@ -312,8 +325,10 @@ class CSV_Controller(TkinterDnD.Tk):
                 for row in contents:
                     csv_writer.writerow(row)
 
-            # Update flag to current filename
-            self.open_status_name = csv_file
+                # Update flag to current filename
+                self.open_status_name = csv_file
+                self.database.current_fname = False
+                self.title("CSV Editor")
         else:
             self.no_opened_file()
 
@@ -563,8 +578,10 @@ class CSV_Controller(TkinterDnD.Tk):
         # Takes the file path from the path_map dictionary using the selected file name as key
         path = self.model.path_map[file_name]
         
-        # Update flag to current filename
+        # Update flags
         self.open_status_name = path
+        self.database.current_fname = False
+        self.title("CSV Editor")
 
         # Create dataframe from path
         self.df = self.model.open_csv_file(path)

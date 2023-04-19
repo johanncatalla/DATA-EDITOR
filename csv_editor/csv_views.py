@@ -3,11 +3,7 @@ from tkinter import ttk
 from tkinterdnd2 import DND_FILES
 
 class CSVView(tk.Frame):
-    """View object which contains widgets for the CSV editor
-
-    Args:
-        tk (parent): inherits from Frame 
-    """
+    """Frame object which contains widgets for the CSV editor"""
     def __init__(self, parent, controller):
         super().__init__(parent)
 
