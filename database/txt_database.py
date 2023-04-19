@@ -3,6 +3,7 @@ from mysql.connector import errorcode
 
 class TXTdatabase():
     def __init__(self):
+        # Flag to check if a file is opened
         self.current_fname = False
 
     def connect(self):
@@ -109,6 +110,7 @@ class TXTdatabase():
             pass
 
     def update_txt(self, filename: str, text: str):
+        """Update the content of the file"""
         cnx = self.connect()
         
         if cnx:

@@ -3,6 +3,7 @@ from mysql.connector import errorcode
 
 class CSVdatabase():
     def __init__(self):
+        # Flag to check if a file is opened
         self.current_fname = False
     
     def connect(self):
@@ -90,6 +91,7 @@ class CSVdatabase():
             pass
             
     def save_to_db(self, filename, columns, rows):
+        """Saves the filename, columns, and rows to database table"""
         cnx = self.connect()
 
         if cnx:
@@ -107,6 +109,7 @@ class CSVdatabase():
             pass
     
     def update_csv(self, fname, columns, rows):
+        """Updates the "columns" and "rows" values in the table"""
         cnx = self.connect()
         
         if cnx:
