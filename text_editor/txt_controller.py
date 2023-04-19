@@ -81,7 +81,7 @@ class Controller():
         )
         self.database_menu.add_command(
             label="Save to database as...", 
-            command=self.view.db_save_popup, 
+            command=self.db_save_as_cmd, 
             state=state
         )
         self.database_menu.add_command(
@@ -121,22 +121,36 @@ class Controller():
     def cnx_error_msg(self):
         """Error message when not connected to database"""
         messagebox.showinfo(title="Message", message=f"Not connected to database.")
+    
+    def no_opened_file(self):
+        messagebox.showinfo(title="Message", message=f"No opened file")
 
     def db_save_cmd(self):
-        fnames = self.database.get_fnames()
+        # Database: save command for menu
+        
         title = self.root.title().replace("DATABASE: ", "")
-
-        if not bool(fnames):
-            self.db_save(title)
-        else:
-            if title not in fnames:
-                self.db_save(title)
+        if self.cnx:
+            if self.open_status_name or self.database.current_fname:
+                fnames = self.database.get_fnames()
+                if self.open_status_name:
+                    filename = title
+                elif self.database.current_fname:
+                    filename = self.database.current_fname    
+                if not bool(fnames):
+                        self.db_save(filename)
+                else:
+                    if filename not in fnames:
+                        self.db_save(filename)
+                    else:
+                        self.view.db_save_popup()         
             else:
-                self.view.db_save_popup()       
+                self.no_opened_file()        
+        else:
+            self.cnx_error_msg() 
 
     def db_save(self, fname):
         """Save to database"""
-        # Ccheck if there is connection
+        # Check if there is connection
         if self.cnx:
             # Check if filename is empty
             if fname != "":
@@ -146,19 +160,24 @@ class Controller():
                 # Save to database
                 self.database.save_to_db(fname, current_content)
 
-                self.database.current_fname = fname
-
                 messagebox.showinfo(
                     title = "Saved Successfully!",
                     message = f"Saved {fname} to Database 'Text Editor'."
                 )
-                self.root.title("DATABASE: " + fname)
             else:
                 # Save as if the filename is empty
                 self.view.db_save_popup()
         else:
             self.cnx_error_msg()
-        
+    
+    def db_save_as_cmd(self):
+        # Database: save as command for menu
+        # Check if a file is opened in either local or mysql directory
+        if self.open_status_name or self.database.current_fname:
+            self.view.db_save_popup()
+        else:
+            self.no_opened_file()
+
     def db_save_as(self):
         """Save file to database as custom filename"""
         # Get inputted filename
@@ -176,6 +195,7 @@ class Controller():
             self.cnx_error_msg()
 
     def db_save_changes_cmd(self):
+        # Database: save changes command for menu
         if self.database.current_fname:
             self.db_save_changes()
         else:
@@ -185,9 +205,14 @@ class Controller():
             )
 
     def db_save_changes(self):
+        # Updates the changes to database
         content = self.view.txt_editor.get("1.0", tk.END)
         filename = self.database.current_fname
         self.database.update_txt(filename, content)
+        messagebox.showinfo(
+                    title = "Message",
+                    message = f"Saved changes to {filename}"
+            )
 
     def db_read(self):
         """Triggers when opening file from database menu"""
@@ -221,9 +246,9 @@ class Controller():
         self.view.txt_editor.delete('1.0', 'end')
         self.view.txt_editor.insert('1.0', res)
 
-        # Update dataframe flag
+        # Update flags
+        self.open_status_name = False
         self.database.current_fname = fname
-
         self.root.title("DATABASE: " + fname)
 
     def del_curr_from_db(self):
@@ -238,7 +263,8 @@ class Controller():
                     if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
                         # Deletes current file from db
                         self.database.del_from_tbl(curr_fname)
-                        self.database.current_fname = ""
+                        self.database.current_fname = False
+                        self.open_status_name = False
                         self.new_file()
                         # Confirmation message that the file is deleted
                         messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
@@ -353,51 +379,37 @@ class Controller():
 
     def open_text_file(self):
         # Open file to insert to the Text Editor
-        f = fd.askopenfilename(
+        file = fd.askopenfilename(
             initialdir="D:/Downloads/", 
             title='Open File', 
             filetypes=(('.txt files', '*.txt'), ('HTML Files', '*.html'),('Python Files', '*.py'), ('All Files', '*.*'))
         )
         
-        if f:
+        if file:
             # Update flag to current filename
-            self.open_status_name = f
+            self.open_status_name = file
             # Reset dataframe flag
             self.database.current_fname = False
 
             # Update status bars
             extract_filename = re.search(r"[^/\\]+$", self.open_status_name).group(0)
-            self.view.status_bar.config(text=f"{f}       ")            
+            self.view.status_bar.config(text=f"{file}       ")            
             self.root.title(f"{extract_filename}")
 
             # Update text editor
-            self.model.open(f)
+            self.model.open(file)
             self.update(self.model.text)
-
-    def new_file(self):
-        # Delete previous text
-        self.update()
-
-        # Update the title and status bar
-        self.root.title('New File')
-        self.view.status_bar.config(text="New File       ")
-
-        # Reset Flag
-        self.open_status_name = False   
-
-        # Reset dataframe flag
-        self.database.current_fname = False
 
     def save_file(self):
         # Checks the text editor flag if the file exists in the directory
         if self.open_status_name:
+        
             # Save the file
             self.model.save(self.open_status_name)
 
             # Updates the status bar
             self.view.status_bar.config(text=f"Saved: {self.open_status_name}       ")
 
-        # If the file is not in the directory, calls the "Save File as..." function
         else:
             self.save_as_file() 
     
@@ -420,10 +432,25 @@ class Controller():
             
             # Save the file
             self.model.save(text_file)
+             # Update flag to current filename
+            self.open_status_name = text_file
+            self.database.current_fname = False
         else:
             pass
-        # Update flag to current filename
-        self.open_status_name = text_file
+       
+    def new_file(self):
+        # Delete previous text
+        self.update()
+
+        # Update the title and status bar
+        self.root.title('New File')
+        self.view.status_bar.config(text="New File       ")
+
+        # Reset Flag
+        self.open_status_name = False   
+
+        # Reset dataframe flag
+        self.database.current_fname = False
 
     def save_export(self):
         # Exports search results to .txt file
