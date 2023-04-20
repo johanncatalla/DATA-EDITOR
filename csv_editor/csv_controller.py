@@ -283,10 +283,8 @@ class CSV_Controller(TkinterDnD.Tk):
 
     def save_csv_file(self):
         # Save/Write to the file
-        print(self.database.current_fname)
         if self.open_status_name or self.database.current_fname:
             if self.open_status_name:
-                print(self.open_status_name)
                 csv_writer = self.model.save_csv(self.open_status_name)
                 # List of headings of the treeview
                 header = [self.table.heading(column)["text"] for column in self.table["columns"]]

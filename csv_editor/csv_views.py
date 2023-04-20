@@ -65,7 +65,8 @@ class CSVView(tk.Frame):
             options (list): list of filenames in database
         """
         self.popup_root = tk.Tk()
-        self.popup_root.geometry("150x100")
+        self.popup_root.title("Open from database")
+        self.popup_root.geometry("200x100")
         main_frame = tk.Frame(self.popup_root)
         main_frame.pack(fill=tk.BOTH)
 
