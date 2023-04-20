@@ -134,7 +134,8 @@ class ViewPanel():
             options (list): list of filenames in database
         """
         self.popup_root = tk.Tk()
-        self.popup_root.geometry("150x100")
+        self.popup_root.title("Open from database")
+        self.popup_root.geometry("200x100")
         main_frame = tk.Frame(self.popup_root)
         main_frame.pack(fill=tk.BOTH)
 
@@ -153,6 +154,7 @@ class ViewPanel():
     def db_save_popup(self):
         """popup window when saving to database as custom filename"""
         self.save_popup_root = tk.Tk()
+        self.save_popup_root.title("Save from database")
         self.save_popup_root.geometry("200x100")
         main_frame = tk.Frame(self.save_popup_root)
         main_frame.pack(fill=tk.BOTH)

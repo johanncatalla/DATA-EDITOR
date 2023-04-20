@@ -9,7 +9,7 @@ from text_editor.txt_models import Model
 from text_editor.txt_views import ViewPanel
 from csv_editor.csv_controller import CSV_Controller
 
-class Controller():
+class TXT_Controller():
     """Controller object for the text editor"""
     def __init__(self):
         # Root container
@@ -91,7 +91,7 @@ class Controller():
         )
         self.database_menu.add_separator()
         self.database_menu.add_command(
-            label="Open", 
+            label="Open from database", 
             command=self.db_read,
             state=state
         )
