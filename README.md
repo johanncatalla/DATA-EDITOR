@@ -10,10 +10,10 @@
 A Text Editor and CSV Editor using Tkinter utilizing MVC architecture of the Object-Oriented Programming approach. The user can search records and perform CRUD operations locally and on MySQL database on both applications. 
 
 # CSV Editor with Search
-![CSV Viewer](https://github.com/johanncatalla/DATA-PROJECT/blob/main/images/csv_editor.png)
+![CSV Viewer](https://github.com/johanncatalla/DATA-EDITOR/blob/main/images/csv-1.png)
 
 # Text Editor with Search
-![Text Editor](https://github.com/johanncatalla/DATA-PROJECT-v1.0/blob/main/images/text_editor_new.png)
+![Text Editor](https://github.com/johanncatalla/DATA-EDITOR/blob/main/images/txt-1.png)
 
 # PROPERTIES
 The search functionality of the Text Editor has the following properties:
