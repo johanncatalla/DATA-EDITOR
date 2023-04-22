@@ -59,7 +59,7 @@ class TXT_Controller():
         
         # Action menu
         self.action_menu = tk.Menu(self.menu_bar, tearoff=0)
-        self.action_menu.add_command(label="Open CSV Viewer", command=self.open_csv_viewer)
+        self.action_menu.add_command(label="Open CSV Editor", command=self.open_csv_viewer)
         self.action_menu.add_separator()
         self.action_menu.add_command(label="Close window", command=self.on_closing)
 
