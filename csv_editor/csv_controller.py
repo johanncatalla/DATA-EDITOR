@@ -22,7 +22,7 @@ class CSV_Controller(TkinterDnD.Tk):
         super().__init__()
 
         self.geometry("1280x720")
-        self.title("CSV Viewer")
+        self.title("CSV Editor")
 
         # Assign properties for Views and Models
         self.view = CSVView(self, self)
