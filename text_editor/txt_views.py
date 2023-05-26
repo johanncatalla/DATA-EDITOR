@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
       
 class ViewPanel():
     """View object which will contain widgets for the text editor"""
@@ -12,6 +13,7 @@ class ViewPanel():
         # Control Frame
         self.control_frame = tk.Frame(root)
         self.control_frame.place(rely=0.97, relheight=0.03, relwidth=0.7)
+
         # Top Text widget    
         self.txt_editor = tk.Text(
             self.top_frame,
@@ -19,7 +21,8 @@ class ViewPanel():
             width=400,
             height=20,
             padx=10,
-            pady=5
+            pady=5,
+            state=tk.NORMAL,
         )
 
         # Scrollbar
@@ -28,7 +31,8 @@ class ViewPanel():
 
         self.txt_scrollbar.pack(side=tk.RIGHT, fill='y') 
         self.txt_editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-    
+        
+                   
         # Binds to keyboard which triggers function that concatenates string to the string storage 
         self.txt_editor.bind('<KeyRelease>', self.controller.on_key_release)
         # Binds the keyboard shortcuts for the CRUD
@@ -117,7 +121,7 @@ class ViewPanel():
             command=self.controller.save_export
         )
         self.export_button.place(rely=0.97, relheight=0.03, relwidth=0.5)
-
+        
         # Button to clear search results
         self.clear_search = tk.Button(
             self.display_frame,
@@ -126,6 +130,10 @@ class ViewPanel():
             command=self.controller.destroy
         )
         self.clear_search.place(rely=0.97, relx=0.5, relheight=0.03, relwidth=0.5)
+
+    def dark_mode(self):
+        self.txt_editor.config(bg="#272727", foreground='white')
+        self.txt_scrollbar.config(bg="#272727")
 
     def open_popup(self, options):
         """popup window to select filename to be opened from database
@@ -136,6 +144,7 @@ class ViewPanel():
         self.popup_root = tk.Tk()
         self.popup_root.title("Open from database")
         self.popup_root.geometry("200x100")
+        self.popup_root.wm_attributes("-topmost", True)
         main_frame = tk.Frame(self.popup_root)
         main_frame.pack(fill=tk.BOTH)
 
@@ -150,12 +159,38 @@ class ViewPanel():
 
         open_btn = tk.Button(main_frame, text="Open file", font=('Arial', 10), command=self.controller.get_selected_val)
         open_btn.pack()
+
+    def open_popup_EXP(self, options):
+        """popup window to select filename to be opened from database
+
+        Args:
+            options (list): list of filenames in database
+        """
+        self.popup_root_EXP = tk.Tk()
+        self.popup_root_EXP.title("Open from database")
+        self.popup_root_EXP.geometry("200x100")
+        self.popup_root_EXP.wm_attributes("-topmost", True)
+        main_frame = tk.Frame(self.popup_root_EXP)
+        main_frame.pack(fill=tk.BOTH)
+
+        # Stringvar to interact with the option menu
+        self.db_fname_EXP = tk.StringVar(main_frame)
+        self.db_fname_EXP.set(options[0]) 
+
+        # Option menu containing filenames
+        option_menu = tk.OptionMenu(main_frame, self.db_fname_EXP, *options)
+        option_menu.config(font=('Arial', 9))
+        option_menu.pack()
+
+        open_btn = tk.Button(main_frame, text="Open file", font=('Arial', 10), command=self.controller.get_selected_val_EXP)
+        open_btn.pack()
     
     def db_save_popup(self):
         """popup window when saving to database as custom filename"""
         self.save_popup_root = tk.Tk()
         self.save_popup_root.title("Save from database")
         self.save_popup_root.geometry("200x100")
+        self.save_popup_root.wm_attributes("-topmost", True)
         main_frame = tk.Frame(self.save_popup_root)
         main_frame.pack(fill=tk.BOTH)
 
@@ -168,3 +203,74 @@ class ViewPanel():
 
         save_btn = tk.Button(main_frame, text="Enter filename", command=self.controller.db_save_as)
         save_btn.pack()
+    
+    def db_save_popup_EXP(self):
+        """popup window when saving to database as custom filename"""
+        self.save_popup_root_EXP = tk.Tk()
+        self.save_popup_root_EXP.title("Save from database")
+        self.save_popup_root_EXP.geometry("200x100")
+        self.save_popup_root_EXP.wm_attributes("-topmost", True)
+        main_frame = tk.Frame(self.save_popup_root_EXP)
+        main_frame.pack(fill=tk.BOTH)
+
+        self.fname_entry_EXP = tk.Entry(
+            main_frame, 
+            width=30,
+            font=('Arial', 10)
+        )
+        self.fname_entry_EXP.pack(fill=tk.BOTH)
+
+        save_btn = tk.Button(main_frame, text="Enter filename", command=self.controller.db_save_as_EXP)
+        save_btn.pack()
+
+    def connect_popup(self):
+        self.connect_popup_root = tk.Tk()
+        self.connect_popup_root.title("Connect to Database")
+        self.connect_popup_root.geometry("250x100")
+        self.connect_popup_root.wm_attributes("-topmost", True)
+        self.main_frame = tk.Frame(self.connect_popup_root)
+        self.main_frame.pack(fill=tk.BOTH)
+
+        host_label = tk.Label(self.main_frame, text="host")
+        user_label = tk.Label(self.main_frame, text="user")
+        password_label = tk.Label(self.main_frame, text="pass")
+
+        self.host_entry = tk.Entry(
+            self.main_frame,
+            width=30,
+            font=('Arial', 10)
+        )
+
+        self.user_entry = tk.Entry(
+            self.main_frame,
+            width=30,
+            font=('Arial', 10)
+        )
+
+        self.password_entry = tk.Entry(
+            self.main_frame,
+            width=30,
+            font=('Arial', 10)
+        )
+   
+        submit_btn = tk.Button(
+            self.main_frame,
+            text="Submit",
+            font=('Arial', 10), 
+            command=self.controller.submit
+        )
+        
+        host_label.grid(row=0, column=0)
+        self.host_entry.grid(row=0, column=1)
+        user_label.grid(row=1, column=0)
+        self.user_entry.grid(row=1, column=1)
+        password_label.grid(row=2, column=0)
+        self.password_entry.grid(row=2, column=1)
+
+        submit_btn.grid(row=3, column=1, sticky='nsew')
+
+        self.connect_popup_root.protocol(
+            "WM_DELETE_WINDOW",
+            self.controller.cred_on_closing
+        )
+        

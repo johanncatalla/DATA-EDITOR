@@ -18,26 +18,17 @@ class TXT_Controller():
         self.root.geometry("1280x720")
         self.root.title("New File")
         self.root.wm_attributes("-topmost", False)
-
+        
         # Model and Views reference
         self.model = Model()
         self.view = ViewPanel(self.root, self) 
 
         # Database reference
-        self.database = TXTdatabase()
-
-        # Flag to check if connected to db
-        self.cnx = self.database.connect()
-
-        # Create database if there is connection
-        if self.cnx:
-            self.database.create_database()
-        else:
-            messagebox.showinfo(title="Message", message=f"Error connecting to database. \nPlease check your MySQL connection.")
-            self.view.status_bar.config(text="Error: Not connected to Database       ")      
-
+        self.database = TXTdatabase()   
+        
         # Flag to check if a file is opened
         self.open_status_name = False
+        self.open_status_name_EXP = False
 
         # Flag to check is there is text selected
         self.selected = False
@@ -70,10 +61,27 @@ class TXT_Controller():
         self.edit_menu.add_command(label="Copy", command=lambda: self.copy_text(False))
         self.edit_menu.add_separator()
         self.edit_menu.add_command(label="Paste", command=lambda: self.paste_text(False))
-
+     
+        # Flag to check if connected to db
+        self.cnx = self.database.connect()
+        
+        # Create database if there is connection
+        if self.cnx:
+            self.database.create_database()
+            self.view.status_bar.config(fg='darkgreen')
+            self.view.status_bar.config(text="Connected to Database       ")
+        else:
+            self.view.status_bar.config(fg='red')
+            self.view.status_bar.config(text="Error: Not connected to Database       ")
+            self.view.connect_popup() 
+            
         # Database CRUD menu
         self.database_menu = tk.Menu(self.menu_bar, tearoff=0)
-        state = tk.NORMAL if self.cnx else tk.DISABLED
+        state = tk.NORMAL
+        self.database_menu.add_command(
+            label="Connect to Database",
+            command=self.view.connect_popup,
+        )
         self.database_menu.add_command(
             label="Save to database", 
             command=self.db_save_cmd, 
@@ -101,12 +109,31 @@ class TXT_Controller():
             command=self.del_curr_from_db,
             state=state
         )
-      
+
+        self.db_exports_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.db_exports_menu.add_command(
+            label="Save to database",
+            command=self.view.db_save_popup_EXP,
+        )
+        self.db_exports_menu.add_command(
+            label="Open from Database",
+            command=self.db_read_EXP
+        )
+        self.db_exports_menu.add_command(
+            label="Save changes",
+            command=self.db_save_changes_cmd_EXP
+        )
+        self.db_exports_menu.add_command(
+            label="Delete current file",
+            command=self.del_curr_from_db_EXP
+        )
+
         # Cascade and labels for menus
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.menu_bar.add_cascade(label="Actions", menu=self.action_menu)
         self.menu_bar.add_cascade(label="Edit", menu=self.edit_menu)
         self.menu_bar.add_cascade(label="Database", menu=self.database_menu)
+        self.menu_bar.add_cascade(label="Exports DB", menu=self.db_exports_menu)
         
         # Protocol when closing tab to trigger yes or no prompt
         self.root.protocol(
@@ -118,6 +145,28 @@ class TXT_Controller():
         """Runs the program"""
         self.root.mainloop()
 
+    def cred_on_closing(self):
+        self.root.wm_attributes("-topmost", True)
+        self.view.connect_popup_root.destroy()
+
+    def submit(self):
+        usr_cred = [self.view.host_entry.get(), self.view.user_entry.get(), self.view.password_entry.get()]
+
+        self.database.host = usr_cred[0]
+        self.database.user = usr_cred[1]
+        self.database.password = usr_cred[2]
+
+        self.cnx = self.database.connect()
+        if self.cnx:
+            self.cred_on_closing()
+            self.database.create_database()
+            self.view.status_bar.config(fg='darkgreen')
+            self.view.status_bar.config(text="Connected to Database       ")
+        else:
+            self.root.wm_attributes("-topmost", True)
+            self.view.status_bar.config(fg='red')
+            self.view.status_bar.config(text="Error: Check credentials or connection       ")
+
     def cnx_error_msg(self):
         """Error message when not connected to database"""
         messagebox.showinfo(title="Message", message=f"Not connected to database.")
@@ -125,9 +174,10 @@ class TXT_Controller():
     def no_opened_file(self):
         messagebox.showinfo(title="Message", message=f"No opened file")
 
+    # DATABASE FILES
+
     def db_save_cmd(self):
         # Database: save command for menu
-        
         title = self.root.title().replace("DATABASE: ", "")
         if self.cnx:
             if self.open_status_name or self.database.current_fname:
@@ -278,8 +328,131 @@ class TXT_Controller():
         else:
             self.cnx_error_msg()
 
+    # EXPORTS
+
+    def db_save_EXP(self, fname):
+        """Save to database"""
+        # Check if there is connection
+        if self.cnx:
+            # Check if filename is empty
+            if fname != "":
+                # Get content of text editor
+                current_content = self.view.display_text.get('1.0', tk.END)
+                    
+                # Save to database
+                self.database.save_to_db_EXP(fname, current_content)
+
+                messagebox.showinfo(
+                    title = "Saved Successfully!",
+                    message = f"Saved {fname} to Database 'Text Editor'."
+                )
+            else:
+                # Save as if the filename is empty
+                self.view.db_save_popup_EXP()
+        else:
+            self.cnx_error_msg()
+    
+    def db_save_as_EXP(self):
+        """Save file to database as custom filename"""
+        # Get inputted filename
+        if self.cnx:
+            fname = self.view.fname_entry_EXP.get()
+            if fname != "":
+                self.db_save_EXP(fname)
+                self.view.save_popup_root_EXP.destroy()
+            else:
+                messagebox.showinfo(
+                        title = "Error",
+                        message = f"Invalid Filename"
+                )
+        else:
+            self.cnx_error_msg()
+
+    def db_save_changes_cmd_EXP(self):
+        # Database: save changes command for menu
+        if self.database.current_fname_EXP:
+            self.db_save_changes_EXP()
+        else:
+            messagebox.showinfo(
+                    title = "Error",
+                    message = f"Cannot save file: file does not exist in database"
+            )
+
+    def db_save_changes_EXP(self):
+        # Updates the changes to database
+        content = self.view.display_text.get("1.0", tk.END)
+        filename = self.database.current_fname_EXP
+        self.database.update_txt_EXP(filename, content)
+        messagebox.showinfo(
+                    title = "Message",
+                    message = f"Saved changes to {filename}"
+            )
+
+    def db_read_EXP(self):
+        """Triggers when opening file from database menu"""
+        if self.cnx:
+            # List of filenames from database to be displayed
+            fname_lst_db = self.database.get_fnames_EXP()
+            
+            # Check if database is not empty
+            if fname_lst_db:
+                self.view.open_popup_EXP(fname_lst_db)
+            else:
+                messagebox.showinfo(
+                    title = "Empty",
+                    message = f"Database is empty."
+                )
+        else:
+            self.cnx_error_msg()
+        
+    def get_selected_val_EXP(self): # button command // views
+        """Gets filename value from option menu"""
+        if self.cnx:
+            fname = self.view.db_fname_EXP.get()
+            self.view.popup_root_EXP.destroy()
+            self.insert_db_txt_EXP(fname)
+        else:
+            self.cnx_error_msg()
+
+    def insert_db_txt_EXP(self, fname):
+        """Inserts the content of the file using filename from database"""
+        res = self.database.get_val_from_fname_EXP(fname)
+        self.view.display_text.delete('1.0', 'end')
+        self.view.display_text.insert('1.0', res)
+
+        self.database.current_fname_EXP = fname
+        self.root.title("DATABASE: " + fname)
+
+    def del_curr_from_db_EXP(self):
+        """Deletes current file from database"""
+        # Check connection
+        if self.cnx:
+            curr_fname = self.database.current_fname_EXP
+            fnames = self.database.get_fnames()
+            if bool(fnames):
+                # Check if there is an opened file
+                if curr_fname:
+                    if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{curr_fname}\" from database?"):
+                        # Deletes current file from db
+                        self.database.del_from_tbl_EXP(curr_fname)
+                        self.database.current_fname_EXP = False
+                        self.open_status_name_EXP = False
+                        self.view.display_text.delete('1.0', 'end')
+                        # Confirmation message that the file is deleted
+                        messagebox.showinfo(title="Message", message=f"Successfuly deleted \"{curr_fname}\" from database.")
+                else:
+                    messagebox.showinfo(title="Message", message=f"File does not exist in database.")
+            else:
+                messagebox.showinfo(
+                    title = "Empty",
+                    message = f"Database is empty."
+                )
+        else:
+            self.cnx_error_msg()
+
     def open_csv_viewer(self):
         """Open the CSV Viewer"""
+        self.root.iconify()
         view_csv = CSV_Controller()
         view_csv.run()
         
@@ -393,6 +566,7 @@ class TXT_Controller():
 
             # Update status bars
             extract_filename = re.search(r"[^/\\]+$", self.open_status_name).group(0)
+            self.view.status_bar.config(fg="black")
             self.view.status_bar.config(text=f"{file}       ")            
             self.root.title(f"{extract_filename}")
 
@@ -425,6 +599,7 @@ class TXT_Controller():
         if text_file:
             # Updade Status Bars
             name = text_file
+            self.view.status_bar.config(fg="black")
             self.view.status_bar.config(text=f"Saved: {name}       ")
             # Gets the file name and inserts it to title
             extract_filename = re.search(r"[^/\\]+$", text_file).group(0)
@@ -444,6 +619,7 @@ class TXT_Controller():
 
         # Update the title and status bar
         self.root.title('New File')
+        self.view.status_bar.config(fg="black")
         self.view.status_bar.config(text="New File       ")
 
         # Reset Flag
@@ -463,7 +639,7 @@ class TXT_Controller():
         # Checks if the user opened a file in the file dialog
         if text_file:
             # Updade Status Bars
-   
+            self.view.status_bar.config(fg="black")
             self.view.status_bar.config(text=f"Exported: {text_file}       ")
             
             # Save the file
