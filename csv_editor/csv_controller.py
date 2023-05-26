@@ -38,8 +38,12 @@ class CSV_Controller(TkinterDnD.Tk):
         # Create database if there is connection
         if self.cnx:
             self.database.create_db()
+            self.view.status_bar.config(fg='darkgreen')
+            self.view.status_bar.config(text="Connected to Database       ")
         else:
-            messagebox.showinfo(title="Message", message=f"Error connecting to database. \nPlease check your MySQL connection.")
+            self.view.status_bar.config(fg='red')
+            self.view.status_bar.config(text="Error: Not connected to Database       ")
+            self.view.connect_popup() 
         
         # flag to check if a file is opened
         self.open_status_name = False
@@ -59,7 +63,12 @@ class CSV_Controller(TkinterDnD.Tk):
         
         # Database Menu
         self.database_menu = tk.Menu(self.menubar_csv, tearoff=0)
-        state = tk.NORMAL if self.cnx else tk.DISABLED
+        state = tk.NORMAL
+        self.database_menu.add_command(
+            label="Connect to database",
+            command=self.view.connect_popup, 
+            state=state
+        )
         self.database_menu.add_command(
             label="Save to database",
             command=self.db_save_cmd, 
@@ -100,6 +109,25 @@ class CSV_Controller(TkinterDnD.Tk):
     
     def no_opened_file(self):
         messagebox.showinfo(title="Message", message=f"No opened file")
+
+    def submit(self):
+        usr_cred = [self.view.host_entry.get(), self.view.user_entry.get(), self.view.password_entry.get()]
+
+        self.database.host = usr_cred[0]
+        self.database.user = usr_cred[1]
+        self.database.password = usr_cred[2]
+
+        self.cnx = self.database.connect()
+        if self.cnx:
+            self.wm_attributes("-topmost", True)
+            self.database.create_db()
+            self.view.connect_popup_root.destroy()
+            self.view.status_bar.config(fg='darkgreen')
+            self.view.status_bar.config(text="Connected to Database       ")
+        else:
+            self.root.wm_attributes("-topmost", True)
+            self.view.status_bar.config(fg='red')
+            self.view.status_bar.config(text="Error: Check credentials or connection       ")
 
     def db_save_cmd(self):
         # Database: save command for menu
@@ -285,6 +313,8 @@ class CSV_Controller(TkinterDnD.Tk):
         # Save/Write to the file
         if self.open_status_name or self.database.current_fname:
             if self.open_status_name:
+                self.view.status_bar.config(fg="black")
+                self.view.status_bar.config(text=f"Saved: {self.open_status_name}       ")
                 csv_writer = self.model.save_csv(self.open_status_name)
                 # List of headings of the treeview
                 header = [self.table.heading(column)["text"] for column in self.table["columns"]]
@@ -327,6 +357,8 @@ class CSV_Controller(TkinterDnD.Tk):
                 self.open_status_name = csv_file
                 self.database.current_fname = False
                 self.title("CSV Editor")
+                self.view.status_bar.config(fg="black")
+                self.view.status_bar.config(text=f"Saved: {self.open_status_name}       ")
         else:
             self.no_opened_file()
 
@@ -352,6 +384,8 @@ class CSV_Controller(TkinterDnD.Tk):
         if messagebox.askyesno(title="Delete?", message=f"Do you really want to delete \"{file_name}\" from {file_path}?"):
             # Deletes the file that is opened
             self.model.delete_csv(self.open_status_name)
+            self.view.status_bar.config(fg="black")
+            self.view.status_bar.config(text=f"Deleted: {self.open_status_name}       ")
             
             # Delete content of treeview
             self.model.stored_dataframe = pd.DataFrame()
@@ -580,6 +614,8 @@ class CSV_Controller(TkinterDnD.Tk):
         self.open_status_name = path
         self.database.current_fname = False
         self.title("CSV Editor")
+        self.view.status_bar.config(fg="black")
+        self.view.status_bar.config(text=f"{self.open_status_name}       ")
 
         # Create dataframe from path
         self.df = self.model.open_csv_file(path)

@@ -40,12 +40,16 @@ class CSVView(tk.Frame):
         # Option menu for the search bar // change behavior of search
         self.option_menu = tk.OptionMenu(parent, self.search_val, *self.search_options)
         self.option_menu.place(width=190, relx=1, height=24, anchor=tk.NE)
+
+        self.status_bar = tk.Label(parent, text="Ready       ", anchor=tk.W, background="lightgray")
+        self.status_bar.place(x=0, rely=1, anchor='sw')
     
     def db_save_popup(self):
         """popup window when saving to database as custom filename"""
         self.save_popup_root = tk.Tk()
         self.save_popup_root.geometry("200x100")
         main_frame = tk.Frame(self.save_popup_root)
+        self.save_popup_root.wm_attributes("-topmost", True)
         main_frame.pack(fill=tk.BOTH)
 
         self.fname_entry = tk.Entry(
@@ -67,6 +71,7 @@ class CSVView(tk.Frame):
         self.popup_root = tk.Tk()
         self.popup_root.title("Open from database")
         self.popup_root.geometry("200x100")
+        self.popup_root.wm_attributes("-topmost", True)
         main_frame = tk.Frame(self.popup_root)
         main_frame.pack(fill=tk.BOTH)
 
@@ -81,6 +86,52 @@ class CSVView(tk.Frame):
 
         open_btn = tk.Button(main_frame, text="Open file", font=('Arial', 10), command=self.controller.get_selected_val)
         open_btn.pack()
+    
+    def connect_popup(self):
+        self.connect_popup_root = tk.Tk()
+        self.connect_popup_root.title("Connect to Database")
+        self.connect_popup_root.geometry("250x100")
+        self.connect_popup_root.wm_attributes("-topmost", True)
+        self.main_frame = tk.Frame(self.connect_popup_root)
+        self.main_frame.pack(fill=tk.BOTH)
+
+        host_label = tk.Label(self.main_frame, text="host")
+        user_label = tk.Label(self.main_frame, text="user")
+        password_label = tk.Label(self.main_frame, text="pass")
+
+        self.host_entry = tk.Entry(
+            self.main_frame,
+            width=30,
+            font=('Arial', 10)
+        )
+
+        self.user_entry = tk.Entry(
+            self.main_frame,
+            width=30,
+            font=('Arial', 10)
+        )
+
+        self.password_entry = tk.Entry(
+            self.main_frame,
+            width=30,
+            font=('Arial', 10)
+        )
+   
+        submit_btn = tk.Button(
+            self.main_frame,
+            text="Submit",
+            font=('Arial', 10), 
+            command=self.controller.submit
+        )
+        
+        host_label.grid(row=0, column=0)
+        self.host_entry.grid(row=0, column=1)
+        user_label.grid(row=1, column=0)
+        self.user_entry.grid(row=1, column=1)
+        password_label.grid(row=2, column=0)
+        self.password_entry.grid(row=2, column=1)
+
+        submit_btn.grid(row=3, column=1, sticky='nsew')
 
 
 class DataTable(ttk.Treeview):
