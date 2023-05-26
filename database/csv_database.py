@@ -5,17 +5,22 @@ class CSVdatabase():
     def __init__(self):
         # Flag to check if a file is opened
         self.current_fname = False
+        self.host = ""
+        self.user = ""
+        self.password = ""
     
     def connect(self):
         try:
             cnx = mysql.connector.connect(
-                host="localhost",
-                user="root",
-                password="password"
+                host=self.host,
+                user=self.user,
+                password=self.password
             )
             return cnx
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                return False
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
                 return False
             else:
                 return False
@@ -31,10 +36,9 @@ class CSVdatabase():
             cursor.execute("CREATE TABLE IF NOT EXISTS CSV_Data(filename varchar(255), col_content text(65535), row_content text(65535))")
             
             cursor.close()
+            cnx.close()   
         else:
             pass
-
-        cnx.close()   
 
     def get_fnames(self) -> list:
         """Get 'filenames' from database"""
