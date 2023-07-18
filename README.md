@@ -13,7 +13,7 @@ A Text Editor and CSV Editor using Tkinter utilizing MVC architecture of the Obj
 ![CSV Viewer](https://github.com/johanncatalla/DATA-EDITOR/blob/main/images/csv-1.png)
 
 # Text Editor with Search
-![Text Editor](https://github.com/johanncatalla/DATA-EDITOR/blob/main/images/txt-1.png)
+![Text Editor](https://github.com/johanncatalla/DATA-EDITOR/blob/main/images/Txt-editor-1.2.0.png)
 
 # PROPERTIES
 The search functionality of the Text Editor has the following properties:
