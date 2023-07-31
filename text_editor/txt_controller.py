@@ -18,7 +18,7 @@ class TXT_Controller():
         self.root.geometry("1280x720")
         self.root.title("New File")
         self.root.wm_attributes("-topmost", False)
-        
+
         # Model and Views reference
         self.model = Model()
         self.view = ViewPanel(self.root, self) 
@@ -116,13 +116,15 @@ class TXT_Controller():
             command=self.view.db_save_popup_EXP,
         )
         self.db_exports_menu.add_command(
-            label="Open from Database",
-            command=self.db_read_EXP
-        )
-        self.db_exports_menu.add_command(
             label="Save changes",
             command=self.db_save_changes_cmd_EXP
         )
+        self.db_exports_menu.add_separator()
+        self.db_exports_menu.add_command(
+            label="Open from Database",
+            command=self.db_read_EXP
+        )
+        self.db_exports_menu.add_separator()
         self.db_exports_menu.add_command(
             label="Delete current file",
             command=self.del_curr_from_db_EXP
@@ -148,6 +150,7 @@ class TXT_Controller():
     def cred_on_closing(self):
         self.root.wm_attributes("-topmost", True)
         self.view.connect_popup_root.destroy()
+        self.root.wm_attributes("-topmost", False)
 
     def submit(self):
         usr_cred = [self.view.host_entry.get(), self.view.user_entry.get(), self.view.password_entry.get()]
@@ -163,7 +166,7 @@ class TXT_Controller():
             self.view.status_bar.config(fg='darkgreen')
             self.view.status_bar.config(text="Connected to Database       ")
         else:
-            self.root.wm_attributes("-topmost", True)
+            self.root.wm_attributes("-topmost", False)
             self.view.status_bar.config(fg='red')
             self.view.status_bar.config(text="Error: Check credentials or connection       ")
 
@@ -681,3 +684,5 @@ class TXT_Controller():
         # checks if the user intends to close the window
         if messagebox.askyesno(title="Close?", message=f"Do you really want to close Text Editor?"):
             self.root.destroy()
+            self.view.connect_popup_root.destroy()
+            
