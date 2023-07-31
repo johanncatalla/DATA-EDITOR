@@ -1,3 +1,4 @@
+import re
 import os
 import pandas as pd
 import tkinter as tk
@@ -23,6 +24,8 @@ class CSV_Controller(TkinterDnD.Tk):
 
         self.geometry("1280x720")
         self.title("CSV Editor")
+        self.wm_attributes("-topmost", False)
+        
 
         # Assign properties for Views and Models
         self.view = CSVView(self, self)
@@ -124,10 +127,12 @@ class CSV_Controller(TkinterDnD.Tk):
             self.view.connect_popup_root.destroy()
             self.view.status_bar.config(fg='darkgreen')
             self.view.status_bar.config(text="Connected to Database       ")
+            self.wm_attributes("-topmost", False)
         else:
             self.root.wm_attributes("-topmost", True)
             self.view.status_bar.config(fg='red')
             self.view.status_bar.config(text="Error: Check credentials or connection       ")
+            self.root.wm_attributes("-topmost", False)
 
     def db_save_cmd(self):
         # Database: save command for menu
@@ -288,6 +293,7 @@ class CSV_Controller(TkinterDnD.Tk):
 
     def open_csv_file(self):
         """Open CSV file through menu"""
+        self.wm_attributes("-topmost", False)
         file = fd.askopenfilename(
             initialdir="D:/Downloads/",
             title="Open File",
@@ -308,7 +314,7 @@ class CSV_Controller(TkinterDnD.Tk):
                     self.view.file_name_listbox.insert("end", file_name)
                     # Inserts {filename: filepath} to dictionary for accessing
                     self.model.path_map[file_name] = file
-
+        
     def save_csv_file(self):
         # Save/Write to the file
         if self.open_status_name or self.database.current_fname:
@@ -330,6 +336,7 @@ class CSV_Controller(TkinterDnD.Tk):
             self.no_opened_file()
 
     def save_csv_as(self):
+        self.wm_attributes("-topmost", False)
         if self.open_status_name or self.database.current_fname:
             # Save CSV as if file does not exist
             csv_file = fd.asksaveasfilename(
@@ -543,16 +550,19 @@ class CSV_Controller(TkinterDnD.Tk):
             pairs (dict): pairs of column search in the entry widget {country: PH, year: 2020}
         """
         # Column values inside the entry box / use when user selects "Display inputted columns"
-        column_keys = pairs.keys()
+        columns_input = pairs.keys()
+    
         # Value inside option menu   
         option_value = self.view.search_val.get()
         
-        # Takes the empty dataframe and stores it in a property
-        if option_value == "Display All Columns":
-            new_df = self.model.stored_dataframe
-        else:
-            new_df = self.model.stored_dataframe[column_keys]
+        new_df = self.model.stored_dataframe
         
+        # Get the columns in their actual case for displaying
+        columns = []
+        for column in new_df.columns:
+            if column.lower() in [col_input.lower() for col_input in columns_input]:
+                columns.append(column)
+       
         # Create new dataframe with lowercase columns for case insensitive search
         new_df_copy = new_df.copy()
         new_df_copy.columns = new_df_copy.columns.str.lower()
@@ -560,15 +570,23 @@ class CSV_Controller(TkinterDnD.Tk):
         # Lowercase keys(columns) to match new_df_copy for case insensitive search
         pairs_Lcase_keys = {key.lower(): value for key, value in pairs.items()}
    
+        if option_value == "Display Inputted Columns":
+            new_df_copy = new_df_copy[pairs_Lcase_keys.keys()]
+        else:
+            pass
+
         # Dataframe query based on the entry box
         for col, value in pairs_Lcase_keys.items():
             # Checks if the column contains the inputted value
             query_string = f"`{col}`.str.contains('^{value}', na=False, case=False, regex=True)"
             # Evaluate dataframe using expression // outputs search results
             new_df_copy = new_df_copy.query(query_string, engine="python")
-
+        
         # Change lowercase columns to original columns
-        new_df_copy.columns = new_df.columns
+        if option_value == "Display Inputted Columns":
+            new_df_copy.columns = columns
+        else:
+            new_df_copy.columns = new_df.columns
         # Draws the dataframe in the treeview 
         self._draw_table(new_df_copy)
     
